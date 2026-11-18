@@ -16,7 +16,7 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 3. Give barbers a distraction-free mobile interface to start and complete services, track elapsed time, toggle breaks, and preview their next customer.
 4. Provide a high-contrast, 5-metre-readable public waiting-area TV display showing active chairs and the next five upcoming tokens in real time.
 5. Empower the salon owner to configure services (with English and Gujarati names, durations, and INR pricing), manage barbers, control operating hours and online queue availability, and review daily operational statistics.
-6. Guarantee reliable multi-device synchronization (updates within 5 seconds) and strict queue integrity across all interfaces.
+6. Support reliable multi-device synchronization (targeting updates within 5 seconds under normal network conditions, with automatic reconnection and authoritative state refresh) and strict queue integrity across all interfaces.
 
 ---
 
@@ -51,9 +51,10 @@ To keep the system focused, maintainable, and aligned with the assignment scope,
 - External SMS, WhatsApp, or email notification integrations.
 - Customer loyalty points, memberships, coupons, or reward systems.
 - Multi-branch / multi-salon franchise management.
-- Enterprise analytics, staff payroll, inventory management, or complex role-based IAM systems (staff routes use a simple PIN gate only).
+- Enterprise analytics, staff payroll, inventory management, or complex user registration, password recovery, or enterprise IAM/RBAC systems (staff routes use a simple backend-validated PIN gate configured via environment variables).
 
 ---
 
 ## Visual Design Direction
 **Warm charcoal (`#1F2937`) and refined salon gold (`#D4A017`) commercial aesthetic with crisp typography, generous spacing, high-contrast status indicators, minimum 44px mobile touch targets, and device-tailored layouts (one-handed mobile, landscape tablet, and 5-metre-readable TV display) free of generic template clutter.**
+

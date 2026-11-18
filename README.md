@@ -2,7 +2,7 @@
 
 **Live demo:** *Pending deployment (will be added after Stage 10 live deployment)*
 
-**Hosted on:** Vercel (Frontend) + Render / Railway (Backend) + Hosted PostgreSQL (Neon / Supabase)
+**Hosted on:** Vercel (Frontend) + Render / Railway (Backend) + SQLite / Turso libSQL (Free Tier)
 
 **Staff test login/PIN:** *Pending configuration (will be populated with actual configured demo PINs once Stage 1–10 deployment is finalized)*
 
@@ -26,7 +26,7 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 ## Technology Stack
 - **Frontend:** React, Vite, Tailwind CSS, React Router, Lucide React, Socket.IO Client
 - **Backend:** Node.js, Express.js, Socket.IO
-- **Database:** PostgreSQL (`DATABASE_URL` in production via Neon/Supabase) with unified zero-config SQLite repository for local development & testing
+- **Database:** Single SQLite / libSQL engine via `@libsql/client` (`file:./data/salon.db` locally, `:memory:` in automated tests, Turso free tier `libsql://...` or local SQLite in production)
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
@@ -72,4 +72,5 @@ npm run dev
 Run the automated backend queue engine tests (`npm --prefix server test`) and execute all 12 manual/end-to-end test cases documented in [`docs/03-flows-rules.md`](docs/03-flows-rules.md).
 
 ## Deployment Details
-Full step-by-step deployment instructions for Vercel, Render/Railway, and hosted PostgreSQL are documented in [`AGENTS.md`](AGENTS.md) and will be verified in Stage 10.
+Full step-by-step deployment instructions for Vercel, Render/Railway, and SQLite / Turso libSQL (free tier) are documented in [`AGENTS.md`](AGENTS.md) and will be verified in Stage 10.
+

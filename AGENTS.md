@@ -21,16 +21,20 @@ The **Salon Queue Management System** (*Aura Salon* / *ઓરા સલૂન*) 
 
 ### Backend (`server/`)
 - **Runtime & Server:** Node.js + Express.js
-- **Real-time Engine:** Socket.IO (`socket.io`) for sub-second multi-device state sync (`< 5s` SLA)
-- **Database Layer (Dual-Ready Repository):**
-  - **Production (Hosted):** PostgreSQL via `pg` (`DATABASE_URL` — Neon or Supabase free tier)
-  - **Local Development & Automated Testing:** Zero-config SQLite (`better-sqlite3` / `node:sqlite`) sharing the exact same repository contract so local multi-device testing requires zero external accounts, while production seamlessly connects to hosted PostgreSQL via `DATABASE_URL`.
+- **Real-time Engine:** Socket.IO (`socket.io`) targeting live multi-device updates within 5 seconds under normal network conditions, with automatic reconnection, authoritative REST state refresh after reconnect, clear connection indicators, and safe handling of failed requests and duplicate actions.
+- **Database Architecture (Final Single-Engine Decision — SQLite / libSQL via `@libsql/client`):**
+  - **One Engine, One Schema, Zero Dual-Database Abstraction:** We intentionally avoid maintaining two separate database engines (SQLite + PostgreSQL) and a complex repository abstraction layer. Instead, the backend uses **one SQLite/libSQL database engine** accessed through a single lightweight `@libsql/client` driver and one SQL schema:
+    - **Local Development:** `DATABASE_URL=file:./data/salon.db` — zero external signup, Docker, or local DB server required; persists cleanly on disk.
+    - **Automated Testing:** `DATABASE_URL=:memory:` — fast, isolated in-memory SQLite per test run.
+    - **Multi-Device Synchronization:** All devices connect to the single Express + Socket.IO server, which coordinates atomic write transactions and broadcasts live updates.
+    - **Free Production Deployment:** Works with **zero paid services** on Render/Railway free tier—either connected to a free Turso libSQL database (`DATABASE_URL=libsql://...` + `DATABASE_AUTH_TOKEN`, free starter plan, no credit card required) for permanent cross-deploy persistence, or using a local SQLite file (`file:./data/salon.db`) for zero-account ephemeral demos.
+- **Simple Staff PIN Auth:** Backend-validated numeric PINs configured via environment variables (`STAFF_PIN`, `OWNER_PIN`) with no user registration, password recovery, or complex role-management infrastructure.
 - **Configuration:** `dotenv` + environment variables (never expose secrets in frontend bundles).
 
 ### Hosting & Deployment
 - **Frontend:** Vercel (with SPA rewrite rule in `client/vercel.json`)
-- **Backend:** Render or Railway
-- **Database:** Hosted PostgreSQL (Neon or Supabase)
+- **Backend:** Render or Railway (free tier)
+- **Database:** Turso libSQL free tier (`libsql://...`) or SQLite file (same single SQLite engine, zero paid services)
 
 ---
 
@@ -106,29 +110,38 @@ Always consult these authoritative documents before changing code:
   server/src/
   ├── routes/       # Express REST endpoints
   ├── services/     # Centralized queueEngine.js & waitTimeCalculator.js
-  ├── db/           # Unified SQLite / PostgreSQL repository & seed data
+  ├── db/           # Single SQLite/libSQL client (@libsql/client), schema & seed
   ├── socket/       # Socket.IO broadcaster
-  └── middleware/   # PIN auth guard & centralized error handler
+  └── middleware/   # Simple PIN auth guard & centralized error handler
   ```
 - Keep responsibilities cleanly separated; never dump business logic or multiple screens into `App.jsx`.
-- Use environment variables (`VITE_API_URL`, `DATABASE_URL`, `PORT`, `CLIENT_ORIGIN`, `STAFF_PIN`, `OWNER_PIN`, `SALON_TIMEZONE`). Never hardcode secrets or expose server credentials in frontend code.
+- Use environment variables (`VITE_API_URL`, `DATABASE_URL`, `DATABASE_AUTH_TOKEN`, `PORT`, `CLIENT_ORIGIN`, `STAFF_PIN`, `OWNER_PIN`, `NO_SHOW_GRACE_MINUTES`, `SALON_TIMEZONE`). Never hardcode secrets or expose server credentials in frontend code.
 - Preserve realistic Indian test/seed data (names like Ravi, Amit, Imran, Aarav Patel, Kunal Shah; 10-digit mobile numbers; INR pricing).
 - Keep dependencies minimal—do not add bloated libraries when clean native or Tailwind solutions suffice.
 
 ---
 
 ## 7. Queue Logic Implementation Rules
-1. **Single Source of Truth:** All queue mutations, status transitions, duplicate-phone checks, barber allocations, 30-minute online-closing checks, and waiting-time calculations live centrally in `server/src/services/queueEngine.js`. Frontend screens render server-authoritative data and never invent conflicting queue rules.
-2. **State Machine Integrity:** Strictly enforce:
+1. **Single Source of Truth:** All queue mutations, status transitions, duplicate-phone checks, barber allocations, 30-minute online-closing checks, 10-minute no-show grace checks, and approximate waiting-time calculations live centrally in `server/src/services/queueEngine.js`. Frontend screens render server-authoritative data and never invent conflicting queue rules.
+2. **Separate Status Models:**
+   - **Barber Availability:** `AVAILABLE`, `BUSY`, `ON_BREAK`, `OFF_DUTY`.
+   - **Queue-Entry Status:** `WAITING`, `CALLED`, `IN_CHAIR`, `DONE`, `NO_SHOW`, `CANCELLED`.
+3. **Queue State Machine Integrity:** Strictly enforce:
    - `WAITING → CALLED → IN_CHAIR → DONE`
    - `WAITING → CANCELLED`
-   - `CALLED → NO_SHOW`
+   - `CALLED → NO_SHOW` (strictly after 10-minute grace period from `calledAt`)
    - `CALLED → CANCELLED`
    - Reject all backward or terminal-exit transitions with HTTP `409`.
-3. **Concurrency Safety:** Serialize critical queue mutations (`join`, `call-next`, `start`, `complete`, `no-show`, `cancel`) using an atomic server lock / DB transaction so two barbers can never be assigned the same customer and no barber can ever hold more than one active (`CALLED`/`IN_CHAIR`) customer.
-4. **Barber Preference Integrity:** Never assign a customer who selected a specific barber to any other barber. `Any Barber` customers may be allocated to any eligible available on-duty barber in FCFS order.
-5. **Break & Duty Protection:** Never allocate customers to `ON_BREAK` or `OFF_DUTY` barbers. Prevent going `ON_BREAK` or `OFF_DUTY` while a barber has an active `CALLED` or `IN_CHAIR` customer.
-6. **Online Closing vs Walk-ins:** Automatically block online joining 30 minutes before `closeTime` (or when manually closed by owner), while keeping Reception Walk-in registration open.
+4. **Concurrency Safety:** Serialize critical queue mutations (`join`, `call-next`, `start`, `complete`, `no-show`, `cancel`) using an atomic server lock and SQLite write transaction so two barbers can never be assigned the same customer and no barber can ever hold more than one active (`CALLED`/`IN_CHAIR`) customer.
+5. **Barber Availability & Preference Integrity:**
+   - A barber cannot receive another customer while `BUSY`, `ON_BREAK`, or `OFF_DUTY`.
+   - A barber cannot go `ON_BREAK` (or `OFF_DUTY`) while handling an active `CALLED` or `IN_CHAIR` customer.
+   - A barber who is `ON_BREAK` remains **visible** in customer barber selection (`/join` & Walk-in), but **does not accept new bookings** until available again.
+   - Existing customers who already selected a specific barber remain assigned to that barber and are **never** reassigned to another barber.
+   - `Any Barber` customers may be allocated to any eligible `AVAILABLE` on-duty barber in FCFS order.
+6. **Consistent 10-Minute No-Show Rule:** Timer begins when a customer becomes `CALLED`; Reception shows a live countdown/elapsed timer; `No-show` becomes available after 10 minutes; confirming marks entry `NO_SHOW` and returns the barber to `AVAILABLE`; returning customers must join again to receive a new token at the end of the queue.
+7. **Approximate Waiting-Time Estimation:** Clearly label waiting times as approximate. Maintain separate calculations for **Any Barber** vs **Specific Barber**, and never violate barber preferences to fabricate a shorter estimate.
+8. **Online Closing vs Walk-ins:** Automatically block online joining 30 minutes before `closeTime` (or when manually closed by owner), while keeping Reception Walk-in registration open until salon closing.
 
 ---
 
@@ -150,11 +163,11 @@ Always consult these authoritative documents before changing code:
 ---
 
 ## 10. Deployment Instructions
-1. **Database:** Provision a hosted PostgreSQL database (Neon or Supabase) and copy the `DATABASE_URL` connection string.
-2. **Backend (Render / Railway):**
+1. **Database (Free Tier, Zero Paid Services):** Create a free Turso libSQL database (`libsql://...`) and auth token (`DATABASE_AUTH_TOKEN`) for permanent persistence across deploys—or leave `DATABASE_URL=file:./data/salon.db` for an ephemeral zero-account demo instance.
+2. **Backend (Render / Railway Free Tier):**
    - Deploy `server/` as a Node.js web service (`npm install`, `npm start`).
-   - Set environment variables: `DATABASE_URL`, `CLIENT_ORIGIN` (Vercel production URL), `STAFF_PIN`, `OWNER_PIN`, `SALON_TIMEZONE=Asia/Kolkata`, `NODE_ENV=production`.
-3. **Frontend (Vercel):**
+   - Set environment variables: `DATABASE_URL`, `DATABASE_AUTH_TOKEN` (when using Turso), `CLIENT_ORIGIN` (Vercel production URL), `STAFF_PIN`, `OWNER_PIN`, `NO_SHOW_GRACE_MINUTES=10`, `SALON_TIMEZONE=Asia/Kolkata`, `NODE_ENV=production`.
+3. **Frontend (Vercel Free Tier):**
    - Deploy `client/` with root directory `client`, build command `npm run build`, output directory `dist`.
    - Include `client/vercel.json` SPA rewrite so refreshing `/status/:id`, `/reception`, `/barber/:name`, `/display`, or `/admin` never returns 404.
    - Set environment variable: `VITE_API_URL` (Render/Railway production backend URL).
@@ -171,3 +184,4 @@ Always consult these authoritative documents before changing code:
 5. When diagnosing a bug, explain the root cause clearly before applying a targeted fix.
 6. If approved requirements change, update the corresponding `docs/*.md` files first to keep documentation and code synchronized.
 7. After every task, report all created/modified files and verify the application runs cleanly before committing to Git.
+

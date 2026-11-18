@@ -19,8 +19,8 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 - **Typography:** Clean commercial sans-serif (`Plus Jakarta Sans` / `Inter` with `Noto Sans Gujarati` fallback for crisp Gujarati script rendering) and tabular numerals (`tabular-nums`) for all timers, prices, and tokens.
 - **Touch Targets:** Minimum `44px × 44px` interactive tap targets on all mobile and tablet controls.
 - **Language Toggle:** Available on every screen header as a compact `EN | ગુજરાતી` pill button. Switching updates all UI copy, labels, validation messages, statuses, and bilingual database fields immediately without resetting form inputs or active state.
-- **Connection Indicator:** Subtle live-sync status dot (Green = Live, Amber = Reconnecting, Red = Offline) shown on live screens (`/`, `/status/:id`, `/reception`, `/barber/:name`, `/display`, `/admin`).
-- **Staff PIN Gate:** Staff routes (`/reception`, `/barber/:name`, `/admin`) require a lightweight numeric PIN entry modal/gate validated by the backend (`/api/auth/verify-pin`). Validated sessions are stored in `sessionStorage` so staff do not re-enter the PIN during their shift. Public routes (`/`, `/join`, `/status/:id`, `/display`) require **no authentication**.
+- **Connection Indicator:** Subtle live-sync status dot (Green = Live, Amber = Reconnecting, Red = Offline) shown on live screens (`/`, `/status/:id`, `/reception`, `/barber/:name`, `/display`, `/admin`). On reconnection, screens refresh authoritative state from the server.
+- **Staff PIN Gate:** Staff routes (`/reception`, `/barber/:name`, `/admin`) use a simple backend-validated numeric PIN gate (`/api/auth/verify-pin`) configured via environment variables (`STAFF_PIN`, `OWNER_PIN`)—with no user registration, password recovery, or complex role-management infrastructure. Validated sessions are kept in `sessionStorage` for the shift. Public routes (`/`, `/join`, `/status/:id`, `/display`) require **no authentication**.
 
 ---
 
@@ -77,7 +77,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 - `barbers`: active on-duty barbers with `id`, `name`, `avatarUrl`/initials, `specialty`, `status` (`AVAILABLE`, `BUSY`, `ON_BREAK`), `estimatedWaitMinutes`.
 
 ### Interaction Behaviour
-- Subscribes to Socket.IO real-time updates (`queue:updated`, `barbers:updated`, `settings:updated`); numbers, statuses, and button enabled/disabled state update live within 5 seconds without refresh.
+- Subscribes to Socket.IO real-time updates (`queue:updated`, `barbers:updated`, `settings:updated`); targets live updates within 5 seconds under normal network conditions without refresh, with automatic reconnection and authoritative state refresh.
 
 ### States
 - **Loading State:** Skeleton shimmer placeholders for the status badge, two summary metric cards, and three barber cards; `Join Queue` button shows disabled skeleton state.
@@ -122,9 +122,9 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 6. **Step 3 — Preferred Barber Card:**
    - Section header: `Choose Your Barber`.
    - Selection chips/cards:
-     - First card (default selected): **Any Barber** with subtitle *"Fastest Available"* and combined shortest wait estimate.
-     - One card per on-duty barber (`Ravi`, `Amit`, `Imran`, etc.) showing avatar, name, live status pill (`Available` / `Busy` / `On Break`), and barber-specific wait estimate.
-     - If an `On Break` barber is selected, displays an inline amber advisory: *"Ravi is currently on break. You will stay assigned to Ravi and won't be moved to another barber."*
+     - First card (default selected): **Any Barber** with subtitle *"Fastest Available"* and combined approximate wait estimate.
+     - One card per on-duty barber (`Ravi`, `Amit`, `Imran`, etc.) showing avatar, name, live availability pill (`Available` / `Busy` / `On Break`), and barber-specific approximate wait estimate (never borrowing another barber's idle chair to shorten a specific barber's estimate).
+     - **`ON_BREAK` Barber Behaviour:** A barber currently `ON_BREAK` **remains visible** in the selection list with an amber `On Break` pill, but their card is **disabled and does not accept new bookings** until they return to `AVAILABLE` (displays helper text: *"Currently on break — not accepting new bookings"*). `OFF_DUTY` barbers are excluded from customer booking selection.
 7. **Live Summary Card (Sticky Bottom Bar on Mobile / Side Summary on Desktop):**
    - Selected services list (or *"No services selected yet"*).
    - **Total Duration:** e.g., `45 mins`.
@@ -262,7 +262,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
      - Vertical scrollable stack of Barber Cards (one per on-duty barber; off-duty barbers shown muted at bottom):
        - Header: Circular avatar + Barber Name + Availability Status Pill (`Available`, `Busy`, `On Break`, `Off Duty`).
        - Active Assignment Area:
-         - If `CALLED`: Gold-highlighted strip showing **Token (`S-14`)**, Customer Name, Services, status `CALLED`, and ticking wait-to-arrive timer (`Called 04:12 ago` — turns red/amber at `≥ 10:00`). Quick **`No-show`** button inline.
+         - If `CALLED`: Gold-highlighted strip showing **Token (`S-14`)**, Customer Name, Services, status `CALLED`, and live wait-to-arrive countdown/elapsed timer starting at `calledAt` (e.g., `04:12 / 10:00 — 05:48 left`, turning red/amber at `≥ 10:00`). Quick **`No-show`** button inline (disabled until 10 minutes have elapsed since `calledAt`, then enabled).
          - If `IN_CHAIR`: Sky-blue strip showing **Token (`S-12`)**, Customer Name, Services, live elapsed time (`18m elapsed`) + estimated remaining time (`~12m left`).
          - If `Available` (no active customer): Muted text *"Chair Ready — No active customer"* + next eligible customer preview (e.g., *"Next eligible: S-15 (Kunal)"*).
          - If `On Break`: Amber strip *"Currently On Break — Unavailable for calls"*.
@@ -281,7 +281,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
        7. **Status** (color-coded pill)
        8. **Actions** (compact icon+label buttons with `≥ 44px` hit areas):
           - **`Call Next`** / **`Call`** (if row is `WAITING` and an eligible barber is available — calls directly for that barber or opens barber picker if multiple `Any Barber` barbers are free; note: FCFS order is highlighted and primary `Call Next` lives on each Barber Card so strict FCFS is preserved)
-          - **`No-show`** (enabled when row status is `CALLED`; prompts quick confirmation, displays elapsed called minutes)
+          - **`No-show`** (visible when row status is `CALLED`; disabled with countdown until 10 minutes have elapsed since `calledAt`, then enabled and prompts confirmation)
           - **`Cancel`** (enabled when `WAITING` or `CALLED`; prompts quick confirmation)
           - **`View Details`** (eye/info button opening Customer Detail Slide-over/Modal)
 4. **Add Walk-in Modal / Slide-over:**
@@ -289,20 +289,20 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
      - Customer Name (required).
      - Mobile Number (required, 10 digits, validated).
      - Services (1–3 active services selectable with live duration & INR price).
-     - Preferred Barber (`Any Barber` or specific on-duty barber).
-   - Live summary strip (duration, price, estimated wait).
+     - Preferred Barber (`Any Barber` or specific on-duty barber; barbers currently `ON_BREAK` remain visible with an `On Break` badge but are disabled for new bookings until available).
+   - Live summary strip (duration, price, approximate estimated wait).
    - Duplicate phone check (if phone already active, shows existing token instead of duplicating).
    - Footer: **Cancel** + Gold **Add to Queue** button.
 5. **Customer Details Modal:**
-   - Full timeline (`Joined`, `Called`, `Started`, `Completed`), source (`Online` / `Walk-in`), phone, itemized services with INR prices, preferred & assigned barber, and contextual actions (`No-show`, `Cancel`).
+   - Full timeline (`Joined`, `Called`, `Started`, `Completed`), source (`Online` / `Walk-in`), phone, itemized services with INR prices, preferred & assigned barber, and contextual actions (`No-show` once 10-min grace period elapses, `Cancel`).
 
 ### Buttons & Exact Functionality
 | Button / Control | Behaviour |
 | :--- | :--- |
-| **`+ Add Walk-in`** | Opens Add Walk-in modal (works even when online joining is closed). |
+| **`+ Add Walk-in`** | Opens Add Walk-in modal (works even when online joining is closed, up until salon closing). |
 | **Barber Card `Call Next`** | Sends `POST /api/queue/call-next` with `{ barberId }`. Server atomically selects the earliest FCFS `WAITING` customer matching `preferredBarberId === barberId OR preferredBarberId === null`, assigns them to `barberId`, sets status to `CALLED`, and broadcasts to all screens. |
 | **Row `Call` (FCFS-safe)** | If row is the earliest eligible `WAITING` customer for an available barber, calls them via `/api/queue/call-next`; disables or warns if not eligible/barber busy. |
-| **`No-show`** | Opens confirmation dialog showing how long the customer has been `CALLED` (highlights 10-min rule). On confirm, calls `PATCH /api/queue/:id/no-show`, marks entry `NO_SHOW`, frees the barber to `AVAILABLE`, and broadcasts updates. |
+| **`No-show`** | Available strictly after the 10-minute grace period from `calledAt`. Opens confirmation dialog; on confirm, calls `PATCH /api/queue/:id/no-show`, marks entry `NO_SHOW`, frees the barber to `AVAILABLE`, and broadcasts updates. |
 | **`Cancel`** | Opens confirmation dialog. On confirm, calls `PATCH /api/queue/:id/cancel`, removes from active queue, frees barber if `CALLED`, and broadcasts updates. |
 | **`View Details`** | Opens Customer Details modal. |
 | **Search Input** | Filters table rows client-side in real time by token, customer name, or phone number. |
@@ -541,7 +541,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 
 ### Interaction Behaviour
 - Today's Statistics update automatically in real time as customers join, start, complete, no-show, or cancel across other devices.
-- Saving any service, barber, or setting shows an instant confirmation toast and pushes live updates to every open screen within `< 5` seconds.
+- Saving any service, barber, or setting shows an instant confirmation toast and pushes live updates targeting within 5 seconds under normal network conditions to every open screen.
 
 ### States
 - **Loading State:** Skeleton KPI cards and skeleton table rows per section.
@@ -554,3 +554,4 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 - **Desktop (`≥ 1024px`, primary target):** Clean max-width (`max-w-6xl`) workspace with 3×2 KPI stat grid, 2-column chart breakdown, and structured data tables.
 - **Tablet (`640px – 1023px`):** 2×3 KPI stat grid, horizontal scrollable tab bar, clean card/table layout.
 - **Mobile (`< 640px`):** Single-column stacked KPI cards, service/barber tables adapt cleanly into stacked cards, `44px` minimum buttons and toggles.
+
