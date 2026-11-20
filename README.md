@@ -43,6 +43,7 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 
 ## Screenshots
 - **Immersive 3D Experience (Three.js WebGL):**
+  - Redesigned Cinematic 3D Hero Desktop (1440px): `screenshots/home_hero_desktop_1440.png`
   - Interactive 3D Salon Homepage Desktop (1280px): `screenshots/home_3d_desktop_1280.png`
   - Interactive 3D Salon Homepage Mobile (375px): `screenshots/home_3d_mobile_375.png`
 - **Stage 3 Role-Based Demo Login Screenshots:**

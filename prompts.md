@@ -215,6 +215,30 @@ This file records every prompt used during the design, development, debugging, t
   - Committed changes with message `feat: add immersive threejs salon homepage and rename barber to isha`.
 
 
+### Prompt 8 — Redesign Homepage Hero Section with 3D Barber Chair & Editorial Luxury
+- **Date:** 2026-11-20
+- **Stage:** Frontend Design & 3D Environment Enhancement (Hero Section)
+- **Prompt Summary:**
+  > Redesign the homepage hero section from scratch to make it visually outstanding, luxury editorial grade, and cinema-quality.
+  > 1. Visual Composition: Implement a realistic, high-quality 3D barber chair as a commanding central visual element in a professional salon environment with warm directional highlights, deep charcoal shadows, champagne-gold reflections, and realistic materials (tufted espresso leather, polished gold hardware, chrome hydraulic shaft, rubber treads, and terrazzo floor plinth).
+  > 2. Typography & Content: Large editorial headline ("LOOK SHARP. FEEL EXCEPTIONAL."), small label ("THE ART OF GROOMING"), supporting text ("Your style, your time, your experience. Discover premium grooming with Aura Salon.").
+  > 3. Action CTAs: Primary "BOOK YOUR SLOT" connecting to `/join` queue flow; secondary "EXPLORE THE EXPERIENCE" smooth scrolling to `#experience`.
+  > 4. Navbar & Responsiveness: Seamless integration with transparent navbar, full cinematic composition on desktop (7-col typography / 5-col 3D staging), mobile recomposition with centered 3D focal space, refined scroll indicator, and 100% English & Gujarati parity (374 keys).
+  > 5. Verification: Preserve all other homepage sections, queue system, auth, and Socket.IO real-time sync. Pass 52/52 tests, capture screenshots (`home_hero_desktop_1440.png`, `home_3d_desktop_1280.png`, `home_3d_mobile_375.png`), and commit.
+- **Outcome:** Succeeded:
+  - Procedural Master Barber Chair: Built detailed procedural chair assembly in `client/src/components/three/Salon3DScene.jsx` (`createBarberChair`) with circular beveled base, hydraulic lift column, pump foot pedal, cradle carriage, tufted ribbed leather seat, 14° reclining backrest, adjustable headrest, curved gold armrests, articulated footrest/calf support, and polished dark terrazzo plinth.
+  - Three-Point Studio Rig: Tuned warm directional key light (`#FFF5E6`), golden spotlight (`#E8C982`), golden rim kicker (`#C89B45`), and cool slate fill (`#5A6E82`).
+  - Editorial Hero Section: Rebuilt Hero section in `client/src/pages/HomePage.jsx` with editorial typography, dual prominent CTAs, live salon status capsule (hours, barbers, live sync), and floating signature suite badge.
+  - Localization Parity: Added keys to `en.json` and `gu.json` maintaining 100% 1:1 key parity (374 keys each).
+  - Test & Build Verification:
+    - `node client/test_routes.js` passed (374 keys 1:1 parity).
+    - `npm --prefix client run build` built cleanly in 2.31s.
+    - `npm --prefix server test` passed 52/52 tests (100% pass rate).
+    - `node scripts/e2e_full_workflow.js` passed all 18 end-to-end checks.
+    - Captured verified screenshots: `screenshots/home_hero_desktop_1440.png`, `screenshots/home_3d_desktop_1280.png`, `screenshots/home_3d_mobile_375.png`.
+
+
+
 
 
 

@@ -51,7 +51,7 @@ async function takeScreenshot(url, outputPath, width = 1280, height = 800) {
 
 async function run() {
   console.log('====================================================');
-  console.log('  AURA SALON: 3D HOMEPAGE SCREENSHOT CAPTURE        ');
+  console.log('  AURA SALON: REDESIGNED HERO SCREENSHOT CAPTURE    ');
   console.log('====================================================\n');
 
   console.log('1. Starting Frontend Client Preview Server on :5173...');
@@ -64,10 +64,16 @@ async function run() {
     await waitForUrl('http://localhost:5173');
     console.log('✔ Frontend preview server ready on http://localhost:5173');
 
-    // Wait a brief moment for assets
-    await new Promise((r) => setTimeout(r, 1000));
+    // Wait a brief moment for 3D assets and animations to stage
+    await new Promise((r) => setTimeout(r, 1200));
 
-    console.log('\n2. Capturing 3D Homepage Screenshots in Chrome...');
+    console.log('\n2. Capturing Redesigned Hero Screenshots in Chrome...');
+    await takeScreenshot(
+      'http://localhost:5173',
+      path.join(SCREENSHOT_DIR, 'home_hero_desktop_1440.png'),
+      1440,
+      900
+    );
     await takeScreenshot(
       'http://localhost:5173',
       path.join(SCREENSHOT_DIR, 'home_3d_desktop_1280.png'),
@@ -81,13 +87,13 @@ async function run() {
       812
     );
 
-    console.log('\n✔ Successfully captured 3D Homepage Desktop & Mobile screenshots!');
+    console.log('\n✔ Successfully captured Redesigned Hero Desktop (1440px & 1280px) and Mobile (375px) screenshots!');
   } finally {
     clientProc.kill();
   }
 }
 
 run().catch((err) => {
-  console.error('❌ Failed to capture 3D homepage screenshots:', err);
+  console.error('❌ Failed to capture redesigned hero screenshots:', err);
   process.exit(1);
 });
