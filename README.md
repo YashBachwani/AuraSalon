@@ -30,7 +30,13 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
-*Screenshots of all seven screens (Mobile Customer, Tablet Reception, Mobile Barber, TV Display, and Owner Dashboard) will be added after implementation and UI polish in Stage 8.*
+- **Stage 2 Verified Screenshots:**
+  - Home Page Desktop (1440px): `screenshots/home_desktop_1440.png`
+  - Join Queue Page Desktop (1440px): `screenshots/join_desktop_1440.png`
+  - Home Page Tablet (1024px): `screenshots/home_tablet_1024.png`
+  - Home Page Mobile (375px): `screenshots/home_mobile_375.png`
+  - Join Queue Page Mobile (375px): `screenshots/join_mobile_375.png`
+*(Full multi-device operational screenshots across Reception, Barber, TV Display, and Owner Dashboard will be added after implementation in Stage 8.)*
 
 ## Project Structure
 ```text

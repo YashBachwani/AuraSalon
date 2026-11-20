@@ -7,17 +7,28 @@ export function createBootstrapRouter(db) {
 
   router.get('/bootstrap', async (_req, res, next) => {
     try {
-      const [settingsRes, servicesCountRes, barbersRes] = await Promise.all([
+      const [settingsRes, servicesRes, barbersRes] = await Promise.all([
         db.execute(
           'SELECT salon_name_en, salon_name_gu, open_time, close_time, is_online_join_manually_closed FROM salon_settings WHERE id = 1'
         ),
-        db.execute('SELECT COUNT(*) AS count FROM services WHERE is_active = 1'),
+        db.execute(
+          'SELECT id, name_en, name_gu, duration_minutes, price_inr, is_active FROM services WHERE is_active = 1 ORDER BY id ASC'
+        ),
         db.execute(
           'SELECT id, name, slug, specialty, avatar_color, availability, is_on_duty FROM barbers ORDER BY id ASC'
         ),
       ]);
 
       const settings = settingsRes.rows[0];
+      const services = servicesRes.rows.map((s) => ({
+        id: Number(s.id),
+        nameEn: s.name_en,
+        nameGu: s.name_gu,
+        durationMinutes: Number(s.duration_minutes),
+        priceInr: Number(s.price_inr),
+        isActive: Boolean(s.is_active),
+      }));
+
       res.json({
         salon: {
           nameEn: settings?.salon_name_en || 'Aura Salon',
@@ -29,9 +40,10 @@ export function createBootstrapRouter(db) {
           timezone: env.salonTimezone,
         },
         counts: {
-          activeServices: Number(servicesCountRes.rows[0]?.count || 0),
+          activeServices: services.length,
           onDutyBarbers: barbersRes.rows.filter((b) => Boolean(b.is_on_duty)).length,
         },
+        services,
         barbers: barbersRes.rows.map((b) => ({
           id: Number(b.id),
           name: b.name,

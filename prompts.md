@@ -47,3 +47,25 @@ This file records every prompt used during the design, development, debugging, t
   - Verified client production build passes cleanly (`vite build` in 2.22s, 0 errors).
   - Verified client route and i18n parity via `node client/test_routes.js`.
 
+---
+
+## Stage 2 — Premium Frontend Design & Development
+
+### Prompt 3 — Stage 2 Premium Frontend Design & Development (Home Page + Join Queue Page)
+- **Date:** 2026-11-20
+- **Stage:** Stage 2 — Frontend UI Development
+- **Prompt Summary:**
+  > Instructed to build high-end luxury frontend design for Aura Salon's Home Page (`/`) and Join Queue Page (`/join`). Required visual identity featuring Deep Charcoal (`#171717`), Champagne Gold (`#D4AF70`), Warm Ivory (`#F7F3EC`), Soft Beige (`#E9DFD0`), Muted Grey (`#A5A19A`), White (`#FFFFFF`), Cormorant Garamond serif headings, and generous whitespace. Required scroll-triggered reveals, subtle parallax, frosted sticky navbar, and responsive layouts. Home Page required 9 sections (Navbar, Hero, Experience, Curated Services, Barbers, How It Works, Queue Preview, Final CTA, Footer). Join Queue Page required a 4-step wizard (Details, Services, Barber, Review), 10-digit phone validation, max 3 services selection, live duration/price totals, Any Barber vs Specific Barber choice with `ON_BREAK` disablement, 30-min closing cutoff warning, zero state loss on language switch or back navigation, and exact 1:1 English/Gujarati parity. Prohibited implementing full queue backend or starting Stage 3 early. Required production build verification, tests, Git commit (`feat: build premium home and join queue frontend`), and 375px/1024px/1440px screenshots.
+- **Outcome:** Succeeded:
+  - Loaded Cormorant Garamond, Plus Jakarta Sans, and Noto Sans Gujarati fonts in `client/index.html`; extended Tailwind theme with luxury color tokens, glow shadows, and shimmer keyframes while maintaining backwards compatibility with Stage 1 tokens.
+  - Implemented `useScrollPosition` and `useIntersectionObserver` hooks with immediate `getBoundingClientRect` visibility fallback and reduced-motion support.
+  - Created reusable UI components: `ScrollReveal`, `ImageReveal`, `SectionHeading`, `ServiceCard`, `BarberCard`, `QueuePreviewCard`, `PremiumNavbar` (frosted glass transition, mobile drawer), and `PremiumFooter`.
+  - Built 9-section luxury Home Page (`client/src/pages/HomePage.jsx`) with curated Unsplash photography for salon interior, services, and resident barbers.
+  - Built 4-step progressive Join Queue Page (`client/src/pages/JoinQueuePage.jsx`) with live duration and INR totals, 10-digit phone validation, 3-service maximum constraint, Any Barber selection, `ON_BREAK` disabled booking state, and 30-minute online closing warning banner.
+  - Enhanced backend `/api/bootstrap` endpoint to serve the database services catalog array for authentic dynamic rendering.
+  - Added 89 new localized strings to both `en.json` and `gu.json` (227 keys each), verifying 100% 1:1 parity and instant language toggle with zero form state loss.
+  - Automated headless Chrome script `scripts/capture_screenshots.js` capturing 5 responsive screenshots at 1440px, 1024px, and 375px, saved to `screenshots/` and embedded into artifact `stage2_visual_review.md`.
+  - Verified `node client/test_routes.js` (pass), `npm --prefix client run build` (pass in 2.57s), and `npm --prefix server test` (pass, 2/2 tests).
+  - Committed changes cleanly with message `feat: build premium home and join queue frontend`.
+
+
