@@ -49,6 +49,8 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
   - Join Queue Page Desktop (1440px): `screenshots/join_desktop_1440.png`
   - Home Page Tablet (1024px): `screenshots/home_tablet_1024.png`
   - Home Page Mobile (375px): `screenshots/home_mobile_375.png`
+  - Home Page Navbar & Services Desktop (1280px): `screenshots/home_navbar_services_1280.png`
+  - Home Page Navbar Mobile (375px): `screenshots/home_navbar_mobile_375.png`
   - Join Queue Page Mobile (375px): `screenshots/join_mobile_375.png`
 - **End-to-End Live Queue Verified Screenshots:**
   - Reception Dashboard Live Sync: `screenshots/e2e_reception_verified.png`
@@ -76,6 +78,9 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - `POST /api/queue/:id/no-show` — Reception marks customer No-Show (enforces 10-minute grace timer).
 - `POST /api/queue/:id/cancel` — Customer or reception cancels spot (`WAITING` or `CALLED`).
 - `PATCH /api/barbers/:id/availability` — Barber toggles break/available state.
+
+### Owner Analytics & Administration (`/api/admin`)
+- `GET /api/admin/analytics?range=today|7d|30d|all` — Authenticated Owner-only analytics endpoint returning authoritative KPIs (`todayOverview`), revenue breakdown (`revenueOverview`), wait & service timings (`queueAnalytics`), per-barber metrics (`barberPerformance`), service popularity distribution (`serviceAnalytics`), 7-day daily trend (`dailyTrend`), and recent live queue activity (`recentActivity`).
 
 ## Project Structure
 ```text

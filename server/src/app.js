@@ -5,6 +5,7 @@ import { createHealthRouter } from './routes/health.js';
 import { createBootstrapRouter } from './routes/bootstrap.js';
 import { createQueueRouter, createBarberRouter } from './routes/queue.js';
 import { createAuthRouter } from './routes/auth.js';
+import { createAdminRouter } from './routes/admin.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 export function createApp(db) {
@@ -25,6 +26,7 @@ export function createApp(db) {
 
   app.use('/api/health', createHealthRouter(db));
   app.use('/api/auth', createAuthRouter(db));
+  app.use('/api/admin', createAdminRouter(db));
   app.use('/api', createBootstrapRouter(db));
   app.use('/api/queue', createQueueRouter(db));
   app.use('/api/barbers', createBarberRouter(db));

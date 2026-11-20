@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   ArrowDown,
   ArrowRight,
@@ -31,10 +32,27 @@ import { SALON_IMAGES } from '../utils/salonImages.js';
 export function HomePage() {
   const { bootstrap, loading, error, refreshBootstrap } = useConnection();
   const { t } = useLanguage();
+  const location = useLocation();
 
   const salon = bootstrap?.salon;
   const services = bootstrap?.services || [];
   const barbers = (bootstrap?.barbers || []).filter((b) => b.isOnDuty);
+
+  // Smoothly scroll to section when navigating from another page with a hash or clicking an anchor
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace('#', '');
+      const timer = setTimeout(() => {
+        const el = document.getElementById(targetId);
+        if (el) {
+          const navOffset = 84;
+          const y = el.getBoundingClientRect().top + window.pageYOffset - navOffset;
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, location.pathname, bootstrap]);
 
   const pillars = [
     {
@@ -76,7 +94,7 @@ export function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#171717] text-salon-text flex flex-col selection:bg-salon-gold/30 selection:text-white">
+    <div id="top" className="min-h-screen bg-[#171717] text-salon-text flex flex-col selection:bg-salon-gold/30 selection:text-white">
       {/* SECTION 1: Sticky Premium Navigation */}
       <PremiumNavbar currentRoute="home" />
 
@@ -94,7 +112,7 @@ export function HomePage() {
           <section
             id="hero"
             aria-label="Hero"
-            className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24"
+            className="scroll-mt-24 relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24"
           >
             {/* Background Photographic Atmosphere with Dark Gradient */}
             <div className="absolute inset-0 z-0">
@@ -232,7 +250,7 @@ export function HomePage() {
           <section
             id="experience"
             aria-label={t('nav.experience')}
-            className="py-20 lg:py-32 relative bg-[#141414] border-t border-white/5"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#141414] border-t border-white/5"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -310,7 +328,7 @@ export function HomePage() {
           <section
             id="services"
             aria-label={t('nav.services')}
-            className="py-20 lg:py-32 relative bg-[#171717]"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#171717]"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
               <SectionHeading
@@ -344,7 +362,7 @@ export function HomePage() {
           <section
             id="barbers"
             aria-label={t('nav.barbers')}
-            className="py-20 lg:py-32 relative bg-[#131313] border-t border-white/5"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#131313] border-t border-white/5"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
               <SectionHeading
@@ -368,7 +386,7 @@ export function HomePage() {
           <section
             id="how-it-works"
             aria-label={t('nav.howItWorks')}
-            className="py-20 lg:py-32 relative bg-[#171717]"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#171717]"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
               <SectionHeading
@@ -411,7 +429,7 @@ export function HomePage() {
           <section
             id="preview"
             aria-label="Queue Experience Preview"
-            className="py-16 lg:py-24 relative bg-[#121212] border-t border-white/5"
+            className="scroll-mt-24 py-16 lg:py-24 relative bg-[#121212] border-t border-white/5"
           >
             <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-10">
               <SectionHeading

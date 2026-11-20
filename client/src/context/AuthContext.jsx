@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { api, getStoredToken, setStoredToken } from '../services/api.js';
+import { getSocket } from '../services/socket.js';
 import { LoadingState } from '../components/ui/StateViews.jsx';
 
 const AuthContext = createContext(null);
@@ -22,7 +23,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await api.getMe();
       if (res?.user) {
-        setUser(res.user);
+        setUser({ ...res.user, activeTicket: res.activeTicket || null });
         setToken(activeToken);
       } else {
         setStoredToken(null);
@@ -42,12 +43,39 @@ export function AuthProvider({ children }) {
     fetchSession();
   }, [fetchSession]);
 
+  // Keep customer active ticket in sync with real-time socket events
+  useEffect(() => {
+    if (!user || user.role !== 'customer') return;
+    const socket = getSocket();
+    const handleQueueChange = () => {
+      fetchSession();
+    };
+
+    socket.on('queue:created', handleQueueChange);
+    socket.on('queue:updated', handleQueueChange);
+    socket.on('customer:called', handleQueueChange);
+    socket.on('queue:started', handleQueueChange);
+    socket.on('queue:completed', handleQueueChange);
+    socket.on('queue:cancelled', handleQueueChange);
+    socket.on('queue:no-show', handleQueueChange);
+
+    return () => {
+      socket.off('queue:created', handleQueueChange);
+      socket.off('queue:updated', handleQueueChange);
+      socket.off('customer:called', handleQueueChange);
+      socket.off('queue:started', handleQueueChange);
+      socket.off('queue:completed', handleQueueChange);
+      socket.off('queue:cancelled', handleQueueChange);
+      socket.off('queue:no-show', handleQueueChange);
+    };
+  }, [user?.role, user?.phone, fetchSession]);
+
   const login = useCallback(async (credentials) => {
     const res = await api.login(credentials);
     if (res?.token && res?.user) {
       setStoredToken(res.token);
       setToken(res.token);
-      setUser(res.user);
+      setUser({ ...res.user, activeTicket: res.activeTicket || null });
       return res.user;
     }
     throw new Error('Login failed: invalid response from server.');
@@ -70,6 +98,7 @@ export function AuthProvider({ children }) {
       user,
       token,
       role: user?.role || null,
+      activeTicket: user?.activeTicket || null,
       isAuthenticated: Boolean(user),
       loading,
       login,
@@ -139,3 +168,4 @@ export function ProtectedRoute({ allowedRoles = [], children }) {
 
   return children;
 }
+

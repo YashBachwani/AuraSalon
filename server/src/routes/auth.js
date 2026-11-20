@@ -185,3 +185,4 @@ export function createAuthRouter(db) {
 
   return router;
 }
+

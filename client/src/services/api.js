@@ -140,4 +140,8 @@ export const api = {
       method: 'PATCH',
       body: { availability },
     }),
+
+  // Owner Analytics
+  getOwnerAnalytics: (range = 'today') =>
+    apiRequest(`/api/admin/analytics?range=${range}`),
 };

@@ -96,7 +96,38 @@ This file records every prompt used during the design, development, debugging, t
 
 ---
 
-## Stage 3 — Role-Based Demo Login, User Experience & Visual Refinement
+## Bug Fixes & Refinements — Owner Analytics & Homepage Navbar
+
+### Prompt 6 — Repair Owner Analytics Data Flow & Improve Homepage Sticky Navigation
+- **Date:** 2026-11-20
+- **Stage:** Feature Fix & UI Refinement (Owner Dashboard Statistics & Homepage Navbar Experience)
+- **Prompt Summary:**
+  > Fix two critical remaining issues:
+  > 1. Owner Dashboard Statistics: Connect statistics displayed in `/admin` to authoritative SQLite database records instead of static placeholders. Provide real-time Socket.IO synchronization, date range filtering (`today`, `7d`, `30d`, `all`), KPI cards, 7-day trend chart, service popularity ranking, barber performance matrix, and recent queue activity log. Protect with Owner-only role authentication.
+  > 2. Homepage Navbar UI: Improve scrolling behavior, sticky navbar backdrop transitions (transparent airy top vs dark luxury scrolled), smooth offset scrolling to sections (`#experience`, `#services`, `#barbers`, `#how-it-works`), cross-page hash navigation, role-tailored CTA buttons (Guest: Join Queue / Sign In; Customer: Join Queue / My Ticket; Barber: My Chair; Reception: Reception Desk; Owner: Owner Dashboard; staff/owner never see "Join Queue"), and an accessible mobile drawer with backdrop overlay, Escape key listener, body scroll lock, minimum 44px touch targets, and zero horizontal overflow.
+- **Outcome:** Succeeded:
+  - **Owner Analytics Service (`server/src/services/analyticsService.js`):** Built comprehensive database analytics calculator computing `todayOverview` (total registered, waiting, called, in-chair, completed, no-show, cancelled, all-time customers and entries), `revenueOverview` (today, 7d, 30d, all-time completed revenue with estimation flag), `queueAnalytics` (real avg wait and service duration from timestamps), `barberPerformance` (completed, serving, waiting, and revenue per barber), `serviceAnalytics` (service selection count, revenue, most popular service), `dailyTrend` (7-day daily volume and revenue series), and `recentActivity` (10 latest entries with token, customer, status, services, and stylist).
+  - **Owner Admin Route (`server/src/routes/admin.js`):** Mounted `/api/admin/analytics` secured by `authenticateUser` and `requireAuth(['owner'])` returning HTTP 401 for unauthenticated and HTTP 403 for Customer, Barber, or Reception roles.
+  - **Rebuilt Owner Dashboard (`client/src/pages/AdminPage.jsx`):** Integrated range filter pills, real-time time-based greeting, manual refresh with spinning indicator, 6 primary KPI cards, secondary status strip, 7-day volume and revenue trend chart with interactive tooltips, service popularity distribution with progress bars, barber performance matrix with real availability status badges, recent activity table, and full Socket.IO event subscriptions with automatic reconnect data refresh.
+  - **Redesigned Sticky Premium Navbar (`client/src/components/shared/PremiumNavbar.jsx`):**
+    - Smooth scroll detection using `useScrollPosition(30)` with seamless backdrop blur transitions (`glass-nav-top` vs `glass-nav-scrolled`).
+    - Smooth scrolling with 84px header offset so sticky navbar never obscures section headings.
+    - Added `scroll-mt-24` and cross-page hash watcher on `client/src/pages/HomePage.jsx` to smoothly handle hash navigation from other routes.
+    - Role-tailored action CTAs on desktop and mobile:
+      - Unauthenticated: "Sign In" link and "Join Queue" primary button.
+      - Customer: "Join Queue" button, "My Ticket: #{token_number}" button when active ticket exists, and profile pill.
+      - Barber: Dedicated "My Chair" button (`/barber/:slug`), barber name badge, and logout. No "Join Queue".
+      - Reception: Dedicated "Reception Desk" button (`/reception`), reception badge, and logout. No "Join Queue".
+      - Owner: Dedicated "Owner Dashboard" button (`/admin`), owner crown badge, and logout. No "Join Queue".
+    - Polished mobile drawer: slide-in panel, dark backdrop overlay with tap-outside dismiss, Escape key dismiss, body scroll lock (`document.body.style.overflow = 'hidden'`), auto-close on link click, minimum 44px tap targets, and zero horizontal viewport overflow.
+  - **Automated Test Suite (`server/src/admin_analytics.test.js`):** Built and executed 15 automated test cases covering owner access, role restrictions, unauthenticated requests, and real-time metric updates across customer registration, call-next, start-service, complete-service, and cancellation.
+  - **Verification:**
+    - All 52 automated tests in 5 suites passed 100% (`node --test server/src/*.test.js`).
+    - 100% 1:1 translation parity maintained across `client/src/locales/en.json` and `client/src/locales/gu.json` (369 keys each verified via `node client/test_routes.js`).
+    - Full end-to-end multi-device workflow verified with `scripts/verify_owner_analytics_and_navbar.js` and `scripts/e2e_full_workflow.js`.
+    - Production build verified with `npm --prefix client run build` (built cleanly in 2.48s).
+  - Committed changes cleanly with message `fix: repair owner analytics and improve homepage navigation`.
+
 
 ### Prompt 5 — Implement Role-Based Demo Authentication, Dashboards & Visual Theme
 - **Date:** 2026-11-20
