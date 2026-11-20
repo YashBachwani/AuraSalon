@@ -187,58 +187,48 @@ This file records every prompt used during the design, development, debugging, t
   - Created centralized `server/src/services/analyticsService.js` calculating dynamic metrics from SQLite and connected it to `server/src/routes/admin.js` with authentication guards.
   - Refined `client/src/components/shared/PremiumNavbar.jsx` with smooth backdrop transitions, quick action pills, active route indicators, and mobile drawer.
   - Added 32 translation keys to `en.json` and `gu.json` with 100% key parity (369 keys each).
-  - Wrote 14-test suite `server/src/admin_analytics.test.js` validating all analytics calculations and filters.
+  - Wrote 14-test suite `server/src/admin_analytics.test.js` validating all analytics calculations and filters (52/52 server tests passing).
   - Verified with `scripts/verify_owner_analytics_and_navbar.js` and committed as `cf12c0a`.
 
 
-### Prompt 7 — Immersive Three.js Homepage Redesign + Global Barber Rename to Isha
+### Prompt 7 — Redesign Homepage Hero Section & Complete Ravi to Isha Replacement
 - **Date:** 2026-11-20
-- **Stage:** 3D Creative Engineering & Brand Realignment
+- **Stage:** Hero Section Redesign & Brand Realignment (Hero + Isha)
 - **Prompt Summary:**
-  > Transform the Aura Salon homepage into an immersive, scroll-driven Three.js 3D experience and globally rename barber "Ravi" to "Isha" (Gujarati: "ઈશા") across all routes, UI, mock data, seed files, tests, and documentation.
-  > 1. Creative 3D Scene: Study reference (or craft a luxury salon scene if video is inaccessible). Build procedural 3D assets (Golden Shears with articulated snip pivot, Straight Razor, Styling Comb, Beveled Mirror Ring, floating Gold Embers particles, studio 3-point lighting), 5 narrative scroll sections, WebGL capability detection, CSS fallback, `prefers-reduced-motion` support, DPR clamping, and zero-scroll-hijacking.
-  > 2. Barber Rename: Rename barber "Ravi" to "Isha" everywhere. Check case-insensitively and justify any remaining occurrence.
-  > 3. Verify zero breakage to queue engine, run tests, build frontend, capture screenshots (`home_3d_desktop_1280.png`, `home_3d_mobile_375.png`), and commit with message `feat: add immersive threejs salon homepage and rename barber to isha`.
+  > Act as a senior UI/UX designer, creative frontend developer, Three.js specialist, and full-stack engineer:
+  > 1. Task 1 — Completely redesign the homepage hero section with a premium, cinematic, luxury brand feel using the Aura Salon palette (`#191817`, `#292622`, `#C89B45`, `#E8C982`, `#F5EFE4`, `#D9D0C2`, `#9B7650`). Balanced full-screen desktop 2-column hero: left side with premium eyebrow ("THE ART OF GROOMING"), large headline ("Your Style. Your Moment."), supporting description, primary CTA ("Join the Queue" -> `/join`), secondary CTA ("Explore Our Experience" -> `#experience`), and live trust strip (operating hours, barbers on duty, live sync status); right side with a high-visual-standard procedural Three.js 3D salon composition (master barber chair, floating precision styling shears, fine-toothed stylist comb, glowing gold circular pedestal, 3-point lighting, starlight particles, damped mouse parallax, scroll elevation). Full mobile responsiveness, WebGL capability check, reduced-motion, and CSS fallback.
+  > 2. Task 2 — Complete global replacement of barber identity "Ravi" to "Isha" (Gujarati: "ઈશા") across all components, routes (`/barber/isha`), login demo credentials, DB seed/migration, tests, scripts, translations, and documentation. Case-insensitive search must show zero active references to Ravi. Existing database records and relationships must be safely migrated.
+  > 3. Task 3 — Preserve all existing functionality (queue joining, token generation, live status, reception dashboard, barber chair, owner dashboard, TV display, Socket.IO, DB persistence).
+  > 4. Task 4 — Verify end-to-end multi-device workflow, run all backend tests, client build, capture screenshots (`home_hero_desktop_1280.png`, `home_hero_mobile_375.png`), update `README.md` and `prompts.md`, and commit with message `fix: redesign aura salon hero and replace ravi with isha`.
 - **Outcome:** Succeeded:
-  - Reference Video Status: Handled reference `https://www.youtube.com/shorts/VwFlsB1dqRw` as inaccessible per instructions; engineered custom high-end procedural salon 3D direction matching Aura Salon luxury palette.
-  - Global Rename (Ravi -> Isha): Completely replaced all active UI, routes, database seed/migration, demo login credentials, tests, fixtures, and documentation from Ravi to Isha (`/barber/isha`, Gujarati: "ઈશા"). Only 3 strictly justified backward-compatible lines remain (legacy route redirect in `BarberPage.jsx`, automated DB migration query in `seed.js`, historical prompt log in `prompts.md`).
-  - Procedural 3D Scene Component: Built `client/src/components/three/Salon3DScene.jsx` using Three.js primitives (`CylinderGeometry`, `TorusGeometry`, `BoxGeometry`, `Points`), golden metallic materials, articulated scissor snipping animations linked to scroll, gold particle field, and camera choreography across 5 sections.
-  - Homepage Integration: Integrated `Salon3DScene` in `client/src/pages/HomePage.jsx` via `React.lazy` and `Suspense`, rendering glassmorphic sections that allow the 3D world to shine through seamlessly, with a dedicated spotlight card for Lead Master Barber Isha.
-  - Performance & Fallbacks: Added WebGL capability check with graceful CSS fallback, `prefers-reduced-motion` detection, DPR clamping (`Math.min(window.devicePixelRatio, 2)`), full GPU/Three.js resource disposal on unmount, and isolated Three.js into a code-split lazy chunk (535 kB).
-  - Localization Parity: Added 3 new keys (`leadBarberTitle`, `bookWithIsha`, `fellowArtisans`) maintaining 100% 1:1 key parity across `en.json` and `gu.json` (372 keys each).
-  - Automated & Visual Verification:
-    - Route tests passed (7 routes, 372 keys verified).
-    - Production build passed (`npm --prefix client run build`) in 3.36s.
-    - Full server test suite passed 52/52 tests (100% pass rate).
-    - End-to-end multi-device workflow verification passed 18/18 checks (`scripts/e2e_full_workflow.js`).
-    - Captured verified screenshots: `screenshots/home_3d_desktop_1280.png`, `screenshots/home_3d_mobile_375.png`, `screenshots/e2e_barber_isha_verified.png`, `screenshots/e2e_reception_verified.png`, `screenshots/e2e_customer_status_verified.png`, `screenshots/e2e_tv_display_verified.png`.
-  - Committed changes with message `feat: add immersive threejs salon homepage and rename barber to isha`.
-
-
-### Prompt 8 — Redesign Homepage Hero Section with 3D Barber Chair & Editorial Luxury
-- **Date:** 2026-11-20
-- **Stage:** Frontend Design & 3D Environment Enhancement (Hero Section)
-- **Prompt Summary:**
-  > Redesign the homepage hero section from scratch to make it visually outstanding, luxury editorial grade, and cinema-quality.
-  > 1. Visual Composition: Implement a realistic, high-quality 3D barber chair as a commanding central visual element in a professional salon environment with warm directional highlights, deep charcoal shadows, champagne-gold reflections, and realistic materials (tufted espresso leather, polished gold hardware, chrome hydraulic shaft, rubber treads, and terrazzo floor plinth).
-  > 2. Typography & Content: Large editorial headline ("LOOK SHARP. FEEL EXCEPTIONAL."), small label ("THE ART OF GROOMING"), supporting text ("Your style, your time, your experience. Discover premium grooming with Aura Salon.").
-  > 3. Action CTAs: Primary "BOOK YOUR SLOT" connecting to `/join` queue flow; secondary "EXPLORE THE EXPERIENCE" smooth scrolling to `#experience`.
-  > 4. Navbar & Responsiveness: Seamless integration with transparent navbar, full cinematic composition on desktop (7-col typography / 5-col 3D staging), mobile recomposition with centered 3D focal space, refined scroll indicator, and 100% English & Gujarati parity (374 keys).
-  > 5. Verification: Preserve all other homepage sections, queue system, auth, and Socket.IO real-time sync. Pass 52/52 tests, capture screenshots (`home_hero_desktop_1440.png`, `home_3d_desktop_1280.png`, `home_3d_mobile_375.png`), and commit.
-- **Outcome:** Succeeded:
-  - Procedural Master Barber Chair: Built detailed procedural chair assembly in `client/src/components/three/Salon3DScene.jsx` (`createBarberChair`) with circular beveled base, hydraulic lift column, pump foot pedal, cradle carriage, tufted ribbed leather seat, 14° reclining backrest, adjustable headrest, curved gold armrests, articulated footrest/calf support, and polished dark terrazzo plinth.
-  - Three-Point Studio Rig: Tuned warm directional key light (`#FFF5E6`), golden spotlight (`#E8C982`), golden rim kicker (`#C89B45`), and cool slate fill (`#5A6E82`).
-  - Editorial Hero Section: Rebuilt Hero section in `client/src/pages/HomePage.jsx` with editorial typography, dual prominent CTAs, live salon status capsule (hours, barbers, live sync), and floating signature suite badge.
-  - Localization Parity: Added keys to `en.json` and `gu.json` maintaining 100% 1:1 key parity (374 keys each).
-  - Test & Build Verification:
-    - `node client/test_routes.js` passed (374 keys 1:1 parity).
-    - `npm --prefix client run build` built cleanly in 2.31s.
-    - `npm --prefix server test` passed 52/52 tests (100% pass rate).
-    - `node scripts/e2e_full_workflow.js` passed all 18 end-to-end checks.
-    - Captured verified screenshots: `screenshots/home_hero_desktop_1440.png`, `screenshots/home_3d_desktop_1280.png`, `screenshots/home_3d_mobile_375.png`.
-
-
-
-
-
+  - **Procedural Three.js 3D Component:** Created `client/src/components/three/HeroSalon3D.jsx` featuring:
+    - Master Barber Chair: heavy beveled hydraulic base, fluted column, collar, cradle carriage, tufted deep charcoal leather cushions, gold crown bar, headrest, curved armrests, and footrest.
+    - Floating Precision Styling Shears: champagne gold finger rings, tang, pivot screw, and polished steel blades posed open in an active styling posture.
+    - Sculptural Stylist Comb: amber spine with fine teeth.
+    - Illuminated Pedestal: circular dark slate podium with warm champagne gold torus ring.
+    - Atmospheric Starlight Particles: floating gold dust particles drifting in key spotlight.
+    - Three-Point Lighting: warm champagne key spotlight (`#FFF2D6`), golden amber fill (`#E8C982`), cool steel rim light (`#64748B`), and pedestal underglow (`#C89B45`).
+    - Parallax & Scroll Reactivity: damped pointer movement and scroll-linked elevation/rotation.
+    - Performance & Fallback: WebGL detection, DPR clamping (`Math.min(devicePixelRatio, 2)`), `prefers-reduced-motion` handling, full GPU resource cleanup on unmount, and code-split lazy loading (Three.js isolated into 536 kB chunk).
+  - **Full-Screen Luxury Hero:** Redesigned `client/src/pages/HomePage.jsx` with full 2-column luxury layout:
+    - Eyebrow badge: "THE ART OF GROOMING" + live hours badge ("Open Today: 09:00 AM – 09:00 PM").
+    - Headline: "Your Style. Your Moment." with champagne-gold gradient styling.
+    - Supporting description: "Experience precision cuts, master barbering, and modern queue-free convenience in a refined atmosphere crafted for your style."
+    - Action CTAs: Primary "Join the Queue" (`/join`) and Secondary "Explore Our Experience" (`#experience` smooth scroll).
+    - Live Trust Strip: Services count, on-duty master barbers, and real-time live sync indicator.
+    - Floating 3D Badge: "Master Styling Station • Isha & Artisans".
+    - Scroll indicator: animated bounce chevron ("Scroll to Explore").
+  - **Complete Global Rename (Ravi -> Isha):**
+    - Updated `server/src/db/seed.js`: default barber is Isha (`slug: 'isha'`, avatar `#D4A017`), plus automatic database migration query (`UPDATE barbers SET name = 'Isha', slug = 'isha' WHERE id = 1 OR slug = 'ravi' OR name = 'Ravi'`).
+    - Updated `client/src/utils/salonImages.js`: `barbers.isha`.
+    - Updated navigation and routes: `PremiumNavbar.jsx`, `PremiumFooter.jsx`, `AuthContext.jsx`, `CustomerLayout.jsx`, `StaffLayout.jsx`, `BarberPage.jsx`, `LoginPage.jsx` (Isha is primary barber demo account at `/barber/isha`).
+    - Updated all test suites: `admin_analytics.test.js`, `auth_rbac.test.js`, `health.test.js`, `queue_integration.test.js`, `stage1_e2e.test.js`.
+    - Updated documentation and verification scripts: `AGENTS.md`, `README.md`, `docs/02-screens.md`, `scripts/e2e_full_workflow.js`, `scripts/verify_owner_analytics_and_navbar.js`.
+    - Case-insensitive search confirmed 0 active occurrences of Ravi in code or configuration.
+  - **Localization Parity:** Maintained 100% 1:1 translation key parity across `en.json` and `gu.json` (370 keys each).
+  - **Verification & Test Results:**
+    - `npm --prefix client run build`: Built cleanly with 0 errors in 3.35s.
+    - `node --test server/src/*.test.js`: All 52/52 backend tests passed (100% pass rate).
+    - `node scripts/e2e_full_workflow.js`: All 18 multi-device end-to-end queue synchronization checks passed.
+    - Verified screenshots captured: `screenshots/home_hero_desktop_1280.png`, `screenshots/home_hero_mobile_375.png`, `screenshots/e2e_barber_isha_verified.png`, `screenshots/e2e_customer_status_verified.png`, `screenshots/e2e_reception_verified.png`, `screenshots/e2e_tv_display_verified.png`.
 

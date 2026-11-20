@@ -10,7 +10,6 @@ import {
   HeartHandshake,
   Scissors,
   Sparkles,
-  Star,
   Ticket,
   Users,
 } from 'lucide-react';
@@ -21,16 +20,17 @@ import { ServiceCard } from '../components/ui/ServiceCard.jsx';
 import { BarberCard } from '../components/ui/BarberCard.jsx';
 import { QueuePreviewCard } from '../components/ui/QueuePreviewCard.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { Badge, BarberAvailabilityBadge } from '../components/ui/Badge.jsx';
+import { Badge } from '../components/ui/Badge.jsx';
 import { ScrollReveal } from '../components/ui/ScrollReveal.jsx';
+import { ImageReveal } from '../components/ui/ImageReveal.jsx';
 import { LoadingState, ErrorState } from '../components/ui/StateViews.jsx';
-const Salon3DScene = lazy(() =>
-  import('../components/three/Salon3DScene.jsx').then((m) => ({ default: m.Salon3DScene }))
+const HeroSalon3D = lazy(() =>
+  import('../components/three/HeroSalon3D.jsx').then((m) => ({ default: m.HeroSalon3D }))
 );
 import { useConnection } from '../context/ConnectionContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { formatTime24To12 } from '../utils/formatters.js';
-import { getBarberImage, SALON_IMAGES } from '../utils/salonImages.js';
+import { SALON_IMAGES } from '../utils/salonImages.js';
 
 export function HomePage() {
   const { bootstrap, loading, error, refreshBootstrap } = useConnection();
@@ -40,10 +40,6 @@ export function HomePage() {
   const salon = bootstrap?.salon;
   const services = bootstrap?.services || [];
   const barbers = (bootstrap?.barbers || []).filter((b) => b.isOnDuty);
-
-  // Identify Lead Master Barber Isha
-  const ishaBarber = barbers.find((b) => b.slug === 'isha') || barbers[0];
-  const fellowBarbers = barbers.filter((b) => b.id !== ishaBarber?.id);
 
   // Smoothly scroll to section when navigating from another page with a hash or clicking an anchor
   useEffect(() => {
@@ -101,58 +97,50 @@ export function HomePage() {
   ];
 
   return (
-    <div id="top" className="min-h-screen bg-[#141414] text-salon-text flex flex-col relative selection:bg-salon-gold/30 selection:text-white">
-      {/* BACKGROUND LAYER: Lazy-Loaded Immersive Three.js 3D Salon Scene */}
-      <Suspense
-        fallback={
-          <div
-            className="fixed inset-0 z-0 pointer-events-none opacity-40 bg-gradient-to-b from-[#141414] via-[#1C1C1C]/40 to-[#141414]"
-            aria-hidden="true"
-          />
-        }
-      >
-        <Salon3DScene />
-      </Suspense>
-
+    <div id="top" className="min-h-screen bg-[#171717] text-salon-text flex flex-col selection:bg-salon-gold/30 selection:text-white">
       {/* SECTION 1: Sticky Premium Navigation */}
       <PremiumNavbar currentRoute="home" />
 
       {loading && !bootstrap ? (
-        <div className="flex-1 flex items-center justify-center p-8 pt-32 relative z-10">
+        <div className="flex-1 flex items-center justify-center p-8 pt-32">
           <LoadingState message={t('common.loading')} />
         </div>
       ) : error && !bootstrap ? (
-        <div className="flex-1 flex items-center justify-center p-8 pt-32 relative z-10">
+        <div className="flex-1 flex items-center justify-center p-8 pt-32">
           <ErrorState onRetry={() => refreshBootstrap()} />
         </div>
       ) : (
-        <main className="flex-1 relative z-10">
+        <main className="flex-1">
           {/* SECTION 2: Cinematic Luxury 3D Hero */}
           <section
             id="hero"
             aria-label="Hero"
-            className="scroll-mt-24 relative min-h-[96vh] flex items-center justify-center overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24"
+            className="scroll-mt-24 relative min-h-[96vh] flex items-center justify-center overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24 bg-gradient-to-b from-[#191817] via-[#161514] to-[#141414]"
           >
-            {/* Subtle Ambient Radial Lighting Gradient */}
+            {/* Subtle atmospheric ambient glow */}
             <div
-              className="absolute inset-0 bg-radial-gradient from-transparent via-[#141414]/25 to-[#141414]/85 pointer-events-none"
+              className="pointer-events-none absolute -top-36 right-10 h-[500px] w-[500px] rounded-full bg-salon-gold/10 blur-[130px]"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute bottom-0 left-0 h-[380px] w-[380px] rounded-full bg-[#9B7650]/10 blur-[120px]"
               aria-hidden="true"
             />
 
             <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center min-h-[68vh]">
-                {/* Left Column: Editorial Typography, Content & CTAs (7 cols) */}
-                <div className="lg:col-span-7 space-y-6 sm:space-y-8 max-w-2xl">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                {/* LEFT COLUMN: Editorial Typography & Actions (7 cols on lg) */}
+                <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
                   {/* Brand Eyebrow & Live Operating Status */}
                   <ScrollReveal delay={50} initiallyVisible>
                     <div className="flex flex-wrap items-center gap-3">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-salon-gold/40 bg-salon-gold/15 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-salon-gold shadow-goldSubtle backdrop-blur-md">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-salon-gold/40 bg-salon-gold/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-salon-gold shadow-goldSubtle backdrop-blur-md">
                         <Sparkles className="h-3.5 w-3.5 animate-pulse text-salon-gold" />
-                        <span>{t('home.heroEyebrow')}</span>
+                        <span>{t('home.heroEyebrow') || 'THE ART OF GROOMING'}</span>
                       </div>
 
                       {salon ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-3.5 py-1.5 text-xs font-medium text-salon-textSecondary backdrop-blur-md tabular-nums">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-xs font-medium text-salon-textSecondary backdrop-blur-md tabular-nums">
                           <Clock className="h-3.5 w-3.5 text-salon-gold" aria-hidden="true" />
                           <span>
                             {t('home.openToday', {
@@ -167,9 +155,9 @@ export function HomePage() {
 
                   {/* Editorial Master Headline */}
                   <ScrollReveal delay={150} initiallyVisible>
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight text-white font-serif leading-[1.04] drop-shadow-2xl">
-                      <span className="block text-white tracking-tight">{t('home.heroHeadlinePrimary')}</span>
-                      <span className="block text-gold-gradient mt-1 sm:mt-2 tracking-tight">
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-serif leading-[1.08]">
+                      <span className="block">{t('home.heroHeadlinePrimary')}</span>
+                      <span className="block text-gold-gradient mt-1">
                         {t('home.heroHeadlineSecondary')}
                       </span>
                     </h1>
@@ -177,23 +165,23 @@ export function HomePage() {
 
                   {/* Supporting Description */}
                   <ScrollReveal delay={250} initiallyVisible>
-                    <p className="text-base sm:text-lg lg:text-xl text-salon-textSecondary/90 max-w-xl leading-relaxed font-sans drop-shadow-md">
+                    <p className="text-base sm:text-lg lg:text-xl text-salon-textSecondary/90 max-w-xl leading-relaxed font-sans">
                       {t('home.heroSubtitle')}
                     </p>
                   </ScrollReveal>
 
-                  {/* Prominent Action CTAs */}
+                  {/* Action CTAs */}
                   <ScrollReveal delay={350} initiallyVisible>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-                      <Link to="/join" className="group">
+                      <Link to="/join">
                         <Button
                           variant="primary"
                           size="xl"
-                          fullWidth={false}
+                          fullWidth
                           rightIcon={ArrowRight}
-                          className="w-full sm:w-auto font-bold tracking-wide shadow-goldGlow hover:scale-[1.02] active:scale-[0.98] px-8 min-w-[200px]"
+                          className="shadow-goldGlow hover:scale-[1.02] active:scale-[0.98] font-bold text-base min-h-[52px]"
                         >
-                          {t('home.ctaBookSlot') || t('home.ctaJoin')}
+                          {t('home.ctaJoin')}
                         </Button>
                       </Link>
 
@@ -203,30 +191,27 @@ export function HomePage() {
                           e.preventDefault();
                           const el = document.getElementById('experience');
                           if (el) {
-                            const navOffset = 84;
-                            const y = el.getBoundingClientRect().top + window.pageYOffset - navOffset;
+                            const y = el.getBoundingClientRect().top + window.pageYOffset - 84;
                             window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-                            window.history.pushState(null, '', '#experience');
                           }
                         }}
-                        className="group"
                       >
                         <Button
                           variant="outline"
                           size="xl"
-                          fullWidth={false}
+                          fullWidth
                           leftIcon={Scissors}
-                          className="w-full sm:w-auto border-white/20 bg-black/40 backdrop-blur-md hover:border-salon-gold/50 hover:bg-white/[0.08] px-7 min-w-[220px]"
+                          className="border-white/20 bg-white/[0.04] hover:border-salon-gold/50 hover:bg-white/[0.08] text-base min-h-[52px]"
                         >
-                          {t('home.ctaExploreExperience') || t('home.heroExploreServices')}
+                          {t('home.heroExploreExperience') || 'Explore Our Experience'}
                         </Button>
                       </a>
                     </div>
                   </ScrollReveal>
 
-                  {/* Real-time Barber & Service Stats Strip */}
+                  {/* Subtle Trust & Experience Stats Strip */}
                   <ScrollReveal delay={450} initiallyVisible>
-                    <div className="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl bg-black/25 backdrop-blur-md rounded-2xl p-4">
+                    <div className="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg">
                       <div className="space-y-1">
                         <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
                           {t('home.configuredServices')}
@@ -260,52 +245,53 @@ export function HomePage() {
                   </ScrollReveal>
                 </div>
 
-                {/* Right Column: Visual Stage for 3D Barber Chair & Artisanal Setting (5 cols) */}
-                <div className="lg:col-span-5 flex flex-col justify-between items-end min-h-[300px] lg:min-h-[500px] pointer-events-none">
-                  {/* Subtle Floating Station Badge (Desktop only) */}
-                  <div className="hidden lg:block">
-                    <ScrollReveal delay={500} direction="down">
-                      <div className="rounded-2xl border border-white/10 bg-black/40 px-5 py-3 backdrop-blur-xl shadow-2xl space-y-1 text-right pointer-events-auto">
-                        <div className="flex items-center justify-end gap-2 text-salon-gold text-xs font-bold uppercase tracking-wider">
-                          <Crown className="h-3.5 w-3.5" />
-                          <span>Master Grooming Suite</span>
+                {/* RIGHT COLUMN: Realistic Three.js 3D Salon Composition (5 cols on lg) */}
+                <div className="lg:col-span-5 relative flex items-center justify-center">
+                  <ScrollReveal delay={200} direction="left" initiallyVisible className="w-full">
+                    <div className="relative w-full max-w-[500px] mx-auto aspect-square rounded-3xl overflow-hidden border border-white/10 bg-[#161514]/75 shadow-2xl backdrop-blur-xl group">
+                      {/* Ambient inner rim glow */}
+                      <div className="absolute inset-0 bg-radial-gradient from-salon-gold/10 via-transparent to-black/70 pointer-events-none" />
+
+                      {/* 3D Scene (Lazy Loaded) */}
+                      <Suspense
+                        fallback={
+                          <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-black/40 rounded-3xl animate-pulse space-y-3">
+                            <div className="h-10 w-10 rounded-full border-2 border-salon-gold/30 border-t-salon-gold animate-spin" />
+                            <span className="text-xs text-salon-textMuted uppercase tracking-wider">Loading 3D Experience...</span>
+                          </div>
+                        }
+                      >
+                        <HeroSalon3D className="w-full h-full" />
+                      </Suspense>
+
+                      {/* Floating Stylist Station Badge */}
+                      <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex items-center justify-between px-3.5 py-2 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-3.5 w-3.5 text-salon-gold" />
+                          <span className="text-xs font-semibold text-salon-text">Master Styling Station</span>
                         </div>
-                        <p className="text-xs text-salon-textMuted font-medium">Bespoke Haircut • Straight Razor • Hot Towel</p>
+                        <span className="text-[11px] text-salon-gold uppercase tracking-wider font-bold">
+                          Isha & Artisans
+                        </span>
                       </div>
-                    </ScrollReveal>
-                  </div>
+                    </div>
+                  </ScrollReveal>
                 </div>
               </div>
             </div>
 
-            {/* Refined Scroll Indicator */}
-            <a
-              href="#experience"
-              onClick={(e) => {
-                e.preventDefault();
-                const el = document.getElementById('experience');
-                if (el) {
-                  const navOffset = 84;
-                  const y = el.getBoundingClientRect().top + window.pageYOffset - navOffset;
-                  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-                  window.history.pushState(null, '', '#experience');
-                }
-              }}
-              aria-label="Scroll to experience section"
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-xs font-medium text-salon-textMuted hover:text-salon-gold transition-colors cursor-pointer group"
-            >
-              <span className="tracking-widest uppercase text-[10px] text-salon-gold/80 font-bold group-hover:text-salon-gold transition-colors">
-                Scroll to Explore
-              </span>
-              <ArrowDown className="h-4 w-4 text-salon-gold animate-bounce" />
-            </a>
+            {/* Scroll Indicator */}
+            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-1.5 text-xs font-medium text-salon-textMuted">
+              <span className="tracking-widest uppercase text-[10px] text-salon-gold/80">Scroll to Explore</span>
+              <ArrowDown className="h-3.5 w-3.5 text-salon-gold animate-bounce" />
+            </div>
           </section>
 
           {/* SECTION 3: Salon Experience (Editorial Split) */}
           <section
             id="experience"
             aria-label={t('nav.experience')}
-            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#141414]/85 backdrop-blur-md border-t border-white/5"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#141414] border-t border-white/5"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -359,7 +345,7 @@ export function HomePage() {
                       const Icon = p.icon;
                       return (
                         <ScrollReveal key={idx} delay={idx * 120} direction="up">
-                          <div className="flex items-start gap-4 p-4 rounded-2xl border border-white/5 bg-[#1C1C1C]/70 hover:border-salon-gold/30 hover:bg-[#202020] transition-colors backdrop-blur-md">
+                          <div className="flex items-start gap-4 p-4 rounded-2xl border border-white/5 bg-[#1C1C1C]/60 hover:border-salon-gold/30 hover:bg-[#202020] transition-colors">
                             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-salon-gold/10 border border-salon-gold/30 text-salon-gold shrink-0">
                               <Icon className="h-5 w-5" />
                             </div>
@@ -383,7 +369,7 @@ export function HomePage() {
           <section
             id="services"
             aria-label={t('nav.services')}
-            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#171717]/80 backdrop-blur-md border-t border-white/5"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#171717]"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
               <SectionHeading
@@ -413,11 +399,11 @@ export function HomePage() {
             </div>
           </section>
 
-          {/* SECTION 5: Meet Master Barber Isha & Artisans */}
+          {/* SECTION 5: Meet Our Barbers */}
           <section
             id="barbers"
             aria-label={t('nav.barbers')}
-            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#131313]/85 backdrop-blur-md border-t border-white/5"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#131313] border-t border-white/5"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
               <SectionHeading
@@ -427,113 +413,13 @@ export function HomePage() {
                 description={t('home.barbersSubtitle')}
               />
 
-              {/* Spotlight Presentation: Master Barber Isha */}
-              {ishaBarber && (
-                <ScrollReveal delay={80} direction="up">
-                  <div className="luxury-card-gold rounded-3xl p-6 sm:p-10 border border-salon-gold/30 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-salon-gold/10 rounded-full blur-3xl pointer-events-none" />
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                      {/* Portrait */}
-                      <div className="lg:col-span-5 flex justify-center">
-                        <div className="relative group">
-                          <div className="relative h-64 w-64 sm:h-72 sm:w-72 rounded-3xl overflow-hidden border-2 border-salon-gold/50 shadow-goldGlow">
-                            <img
-                              src={getBarberImage('isha')}
-                              alt={ishaBarber.name}
-                              className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                              <span className="text-xl font-bold text-white font-serif">{ishaBarber.name}</span>
-                              <BarberAvailabilityBadge availability={ishaBarber.availability} />
-                            </div>
-                          </div>
-                          <div className="absolute -top-3 -right-3 flex h-10 w-10 items-center justify-center rounded-full bg-salon-gold text-salon-charcoal shadow-lg">
-                            <Crown className="h-5 w-5" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Bio & Credentials */}
-                      <div className="lg:col-span-7 space-y-5">
-                        <div className="space-y-1.5">
-                          <div className="inline-flex items-center gap-2 rounded-full border border-salon-gold/30 bg-salon-gold/10 px-3.5 py-1 text-xs font-bold text-salon-gold uppercase tracking-wider">
-                            <Star className="h-3.5 w-3.5 fill-salon-gold text-salon-gold" />
-                            <span>{t('home.leadBarberTitle') || 'Lead Master Barber & Stylist'}</span>
-                          </div>
-                          <h3 className="text-3xl sm:text-4xl font-extrabold text-white font-serif tracking-tight">
-                            {ishaBarber.name}
-                          </h3>
-                          <p className="text-sm font-semibold text-salon-gold">
-                            {ishaBarber.specialty || 'Classic & Modern Precision Haircuts'}
-                          </p>
-                        </div>
-
-                        <p className="text-sm sm:text-base text-salon-textSecondary leading-relaxed">
-                          Renowned for precision scissor craftsmanship, bespoke skin fades, and tailored executive grooming.
-                          Every appointment with Isha is a refined personal ritual designed for distinction and effortless confidence.
-                        </p>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
-                          <div className="p-3 rounded-xl border border-white/5 bg-black/30">
-                            <span className="block text-xs text-salon-textMuted uppercase font-medium">Experience</span>
-                            <span className="text-base font-bold text-white">8+ Years</span>
-                          </div>
-                          <div className="p-3 rounded-xl border border-white/5 bg-black/30">
-                            <span className="block text-xs text-salon-textMuted uppercase font-medium">Chair Position</span>
-                            <span className="text-base font-bold text-salon-gold">Station 01</span>
-                          </div>
-                          <div className="col-span-2 sm:col-span-1 p-3 rounded-xl border border-white/5 bg-black/30">
-                            <span className="block text-xs text-salon-textMuted uppercase font-medium">Current Status</span>
-                            <span className="text-base font-bold text-emerald-400 capitalize">
-                              {ishaBarber.availability?.replace('_', ' ')?.toLowerCase() || 'Available'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="pt-2 flex flex-wrap items-center gap-3">
-                          <Link to="/join">
-                            <Button
-                              variant="primary"
-                              size="lg"
-                              rightIcon={ArrowRight}
-                              className="font-bold shadow-goldGlow"
-                            >
-                              {t('home.bookWithIsha') || 'Book with Isha'}
-                            </Button>
-                          </Link>
-                          <Link to="/barber/isha">
-                            <Button
-                              variant="ghost"
-                              size="lg"
-                              leftIcon={Scissors}
-                              className="text-xs text-salon-textSecondary hover:text-salon-gold"
-                            >
-                              View Isha's Chair Workspace
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </ScrollReveal>
-              )}
-
-              {/* Fellow Resident Stylists */}
-              {fellowBarbers.length > 0 && (
-                <div className="space-y-6 pt-4">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-salon-textMuted text-center">
-                    {t('home.fellowArtisans') || 'Resident Stylists'}
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-                    {fellowBarbers.map((barber, idx) => (
-                      <ScrollReveal key={barber.id} delay={idx * 100} direction="up">
-                        <BarberCard barber={barber} selectable={false} />
-                      </ScrollReveal>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {barbers.map((barber, idx) => (
+                  <ScrollReveal key={barber.id} delay={idx * 100} direction="up">
+                    <BarberCard barber={barber} selectable={false} />
+                  </ScrollReveal>
+                ))}
+              </div>
             </div>
           </section>
 
@@ -541,7 +427,7 @@ export function HomePage() {
           <section
             id="how-it-works"
             aria-label={t('nav.howItWorks')}
-            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#171717]/80 backdrop-blur-md border-t border-white/5"
+            className="scroll-mt-24 py-20 lg:py-32 relative bg-[#171717]"
           >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
               <SectionHeading
@@ -556,7 +442,7 @@ export function HomePage() {
                   const Icon = step.icon;
                   return (
                     <ScrollReveal key={idx} delay={idx * 150} direction="up">
-                      <div className="luxury-card rounded-2xl p-8 relative flex flex-col justify-between h-full space-y-6 backdrop-blur-md">
+                      <div className="luxury-card rounded-2xl p-8 relative flex flex-col justify-between h-full space-y-6">
                         <div className="flex items-center justify-between">
                           <span className="text-3xl sm:text-4xl font-black font-serif text-salon-gold/50">
                             {step.num}
@@ -584,7 +470,7 @@ export function HomePage() {
           <section
             id="preview"
             aria-label="Queue Experience Preview"
-            className="scroll-mt-24 py-16 lg:py-24 relative bg-[#121212]/85 backdrop-blur-md border-t border-white/5"
+            className="scroll-mt-24 py-16 lg:py-24 relative bg-[#121212] border-t border-white/5"
           >
             <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-10">
               <SectionHeading
@@ -603,8 +489,22 @@ export function HomePage() {
           {/* SECTION 8: Final Call to Action */}
           <section
             aria-label="Call to Action"
-            className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-t from-[#141414] via-[#141414]/90 to-transparent border-t border-white/10"
+            className="relative py-24 lg:py-32 overflow-hidden bg-salon-charcoal border-t border-white/10"
           >
+            {/* Background Photographic Glow */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src={SALON_IMAGES.experienceDetail}
+                alt="Aura Salon Handcrafted Grooming Detail"
+                className="h-full w-full object-cover object-center opacity-25"
+                loading="lazy"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-[#171717] via-[#171717]/95 to-[#171717]"
+                aria-hidden="true"
+              />
+            </div>
+
             <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center space-y-6">
               <ScrollReveal delay={50}>
                 <span className="inline-flex items-center gap-2 rounded-full border border-salon-gold/40 bg-salon-gold/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-salon-gold">
@@ -613,7 +513,7 @@ export function HomePage() {
               </ScrollReveal>
 
               <ScrollReveal delay={150}>
-                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-serif text-white tracking-tight drop-shadow-md">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-serif text-white tracking-tight">
                   {t('home.ctaBannerTitle')}
                 </h2>
               </ScrollReveal>

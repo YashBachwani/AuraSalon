@@ -32,20 +32,19 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **Barber Mobile View:** Focused interface with large `START` and `DONE` buttons, live service timer, `On Break / Available` toggle, and next-customer preview.
 - **Waiting Area TV Display:** High-contrast 5-metre-readable display showing active barber tokens, gold call-out animation with optional chime, and the next 5 upcoming tokens.
 - **Owner Management Dashboard:** Manage services (EN/GU names, durations, INR prices, active toggles), barbers (duty & availability), opening/closing hours with automatic 30-minute online-join cutoff, and Today's Statistics.
-- **Immersive Three.js 3D Homepage:** Procedural WebGL salon experience featuring articulated golden shears, precision straight razor, styling comb, mirror ring, floating gold embers, 5-section scroll choreography, WebGL fallback, DPR clamping, and zero-scroll-hijacking.
+- **Cinematic Three.js Hero Experience:** Procedural WebGL salon composition featuring a master barber chair with realistic tufted leather and gold hardware, floating styling shears, styling comb, gold pedestal glow, and atmospheric starlight particles with smooth mouse parallax and scroll responsiveness.
 - **Bilingual Support:** Instant English & Gujarati toggle across all 7 screens without losing state.
 
 ## Technology Stack
-- **Frontend:** React, Vite, Three.js (WebGL 3D Experience), Tailwind CSS, React Router, Lucide React, Socket.IO Client
+- **Frontend:** React, Vite, Three.js (WebGL 3D Hero Composition), Tailwind CSS, React Router, Lucide React, Socket.IO Client
 - **Backend:** Node.js, Express.js, Socket.IO
 - **Database:** Single SQLite / libSQL engine via `@libsql/client` (`file:./data/salon.db` locally, `:memory:` in automated tests, Turso free tier `libsql://...` or local SQLite in production)
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
-- **Immersive 3D Experience (Three.js WebGL):**
-  - Redesigned Cinematic 3D Hero Desktop (1440px): `screenshots/home_hero_desktop_1440.png`
-  - Interactive 3D Salon Homepage Desktop (1280px): `screenshots/home_3d_desktop_1280.png`
-  - Interactive 3D Salon Homepage Mobile (375px): `screenshots/home_3d_mobile_375.png`
+- **Cinematic Three.js Hero Screenshots:**
+  - Redesigned Hero Desktop (1280px): `screenshots/home_hero_desktop_1280.png`
+  - Redesigned Hero Mobile (375px): `screenshots/home_hero_mobile_375.png`
 - **Stage 3 Role-Based Demo Login Screenshots:**
   - Role-Based Demo Login Desktop (1280px): `screenshots/login_desktop_1280.png`
   - Role-Based Demo Login Mobile (375px): `screenshots/login_mobile_375.png`
@@ -60,7 +59,7 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **End-to-End Live Queue Verified Screenshots:**
   - Reception Dashboard Live Sync: `screenshots/e2e_reception_verified.png`
   - Customer Live Status Tracker (`/status/:id`): `screenshots/e2e_customer_status_verified.png`
-  - Barber Chair Management (`/barber/:name`): `screenshots/e2e_barber_isha_verified.png`
+  - Barber Chair Management (`/barber/:name`): `screenshots/e2e_barber_isha_verified.png` (Isha's chair workspace)
   - Waiting Area TV Display (`/display`): `screenshots/e2e_tv_display_verified.png`
 
 ## API Endpoints

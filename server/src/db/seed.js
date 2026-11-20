@@ -10,17 +10,22 @@ const DEFAULT_SERVICES = [
 ];
 
 const DEFAULT_BARBERS = [
-  { name: 'Isha', slug: 'isha', specialty: 'Classic & Modern Haircuts', avatar_color: '#D4A017' },
+  { name: 'Isha', slug: 'isha', specialty: 'Classic & Modern Styling', avatar_color: '#D4A017' },
   { name: 'Amit', slug: 'amit', specialty: 'Beard Styling & Fades', avatar_color: '#38BDF8' },
   { name: 'Imran', slug: 'imran', specialty: 'Hair Spa & Colour Specialist', avatar_color: '#10B981' },
 ];
 
 export async function seedDatabase(client) {
-  // Ensure barber 'Ravi' is migrated to 'Isha' for existing databases
-  await client.execute({
-    sql: "UPDATE barbers SET name = 'Isha', slug = 'isha' WHERE slug = 'ravi' OR name = 'Ravi'",
-    args: [],
-  });
+  // Safe idempotent migration: ensure Barber 1 is Isha across all existing databases
+  try {
+    await client.execute({
+      sql: `UPDATE barbers SET name = 'Isha', slug = 'isha' WHERE id = 1 OR slug = 'ravi' OR name = 'Ravi'`,
+      args: [],
+    });
+  } catch {
+    // safe fallback if table does not exist yet
+  }
+
   await client.execute({
     sql: `INSERT OR IGNORE INTO salon_settings (id, salon_name_en, salon_name_gu, open_time, close_time, is_online_join_manually_closed)
           VALUES (1, 'Aura Salon', 'ઓરા સલૂન', '09:00', '21:00', 0)`,
