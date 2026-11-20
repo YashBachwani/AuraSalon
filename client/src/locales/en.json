@@ -1,0 +1,172 @@
+{
+  "brand": {
+    "defaultName": "Aura Salon",
+    "tagline": "Skip the waiting room. Track your turn live from anywhere.",
+    "subtitle": "Digital Salon Queue Platform"
+  },
+  "nav": {
+    "home": "Home",
+    "join": "Join Queue",
+    "status": "My Status",
+    "reception": "Reception",
+    "barber": "Barber View",
+    "display": "TV Display",
+    "admin": "Owner Settings",
+    "back": "Back",
+    "staffPortals": "Staff & Display Portals",
+    "languageToggleLabel": "Switch language"
+  },
+  "connection": {
+    "live": "Live Sync",
+    "reconnecting": "Reconnecting...",
+    "offline": "Offline",
+    "reconnectedNotice": "Connection restored. Live data refreshed.",
+    "serverOnline": "Backend Connected",
+    "serverOffline": "Backend Unreachable"
+  },
+  "common": {
+    "loading": "Loading Aura Salon...",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "hoursLabel": "Salon Hours",
+    "today": "Today",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen",
+    "activeServicesCount": "{{count}} Active Services",
+    "onDutyBarbersCount": "{{count}} Barbers on Duty",
+    "notFoundTitle": "Page Not Found",
+    "notFoundDescription": "The page you requested does not exist. Return to Aura Salon home.",
+    "goHome": "Go to Home",
+    "stageNoticeTitle": "Foundation Ready — Queue Engine Coming in Upcoming Stages",
+    "stageNoticeBody": "This screen's responsive layout, design system, localization, and real-time backend connection are active. Interactive queue workflows will be enabled incrementally in Stages 2–6."
+  },
+  "status": {
+    "barber": {
+      "AVAILABLE": "Available",
+      "BUSY": "Busy",
+      "ON_BREAK": "On Break",
+      "OFF_DUTY": "Off Duty"
+    },
+    "queue": {
+      "WAITING": "Waiting",
+      "CALLED": "Called",
+      "IN_CHAIR": "In Chair",
+      "DONE": "Completed",
+      "NO_SHOW": "No-show",
+      "CANCELLED": "Cancelled"
+    },
+    "salon": {
+      "open": "Open Now",
+      "onlineClosed": "Online Joining Closed",
+      "closed": "Closed"
+    }
+  },
+  "states": {
+    "loadingDefault": "Connecting to live salon system...",
+    "emptyDefaultTitle": "Nothing here yet",
+    "emptyDefaultDescription": "Live data will appear here automatically once activity begins.",
+    "errorDefaultTitle": "Unable to reach salon server",
+    "errorDefaultDescription": "Check your network connection or confirm the backend server is running, then try again."
+  },
+  "home": {
+    "badge": "Live Queue System",
+    "heroTitle": "Crafted grooming, zero waiting-room guesswork.",
+    "heroDescription": "Check real-time barber availability, view approximate waiting time, and join the Aura Salon queue right from your mobile phone.",
+    "openToday": "Open today: {{open}} – {{close}}",
+    "ctaJoin": "Join Queue",
+    "ctaViewStatus": "Preview Status Route",
+    "liveOverview": "Live Salon Snapshot",
+    "configuredServices": "Configured Services",
+    "barbersOnDuty": "Barbers on Duty",
+    "syncStatus": "Real-time Sync",
+    "barberRosterTitle": "Our Barbers Today",
+    "barberRosterEmpty": "No barbers are currently configured on duty.",
+    "languageRetentionNote": "Try switching EN / ગુજરાતી anytime — your screen and inputs stay intact."
+  },
+  "join": {
+    "title": "Join the Queue",
+    "subtitle": "Step-by-step remote registration for Aura Salon",
+    "stepDetails": "1. Customer Details",
+    "stepServices": "2. Services (Max 3)",
+    "stepBarber": "3. Preferred Barber",
+    "summaryTitle": "Live Booking Summary",
+    "nameLabel": "Customer Name",
+    "namePlaceholder": "e.g. Aarav Patel",
+    "phoneLabel": "Mobile Number",
+    "phonePlaceholder": "10-digit mobile number",
+    "phoneHelper": "10-digit Indian mobile number (validated in Stage 2)",
+    "barberNote": "Barbers on break remain visible and cannot accept new bookings until available.",
+    "stage2Badge": "Full registration flow unlocks in Stage 2",
+    "stage2Description": "Service selection (max 3), 10-digit validation, live duration/INR totals, approximate wait estimates, and duplicate-phone protection will be wired in Stage 2.",
+    "backToHome": "Back to Home"
+  },
+  "myStatus": {
+    "title": "My Queue Status",
+    "subtitle": "Live token tracker",
+    "ticketReference": "Token Reference",
+    "routeIdLabel": "Ticket ID: {{id}}",
+    "progressTitle": "Queue Journey",
+    "stepWaiting": "Waiting",
+    "stepCalled": "Called",
+    "stepInChair": "In Chair",
+    "stepDone": "Done",
+    "stage3Badge": "Live status tracking unlocks in Stage 3",
+    "stage3Description": "Live queue position, approximate waiting countdown, 'Almost Next' alert, full-screen gold 'It's Your Turn!' notification, and cancellation dialog will be implemented in Stage 3.",
+    "backToHome": "Back to Home"
+  },
+  "reception": {
+    "title": "Reception Dashboard",
+    "subtitle": "10-inch tablet landscape operations console",
+    "barbersPanelTitle": "Active Barbers",
+    "queuePanelTitle": "Waiting Queue",
+    "searchPlaceholder": "Search token, name, or phone...",
+    "stage4Badge": "Interactive reception controls unlock in Stage 4",
+    "stage4Description": "Walk-in registration, atomic Call Next respecting barber preferences, 10-minute No-show timer, >60-minute amber alerts, and cancellation controls will be implemented in Stage 4.",
+    "emptyQueueTitle": "Queue Table Ready",
+    "emptyQueueDescription": "Online customers and walk-ins will synchronize here automatically once Stage 4 is active."
+  },
+  "barber": {
+    "title": "Barber View",
+    "subtitle": "Mobile-first chair management",
+    "activeBarberLabel": "Selected Barber",
+    "switchBarber": "Switch Barber",
+    "chooseBarberTitle": "Select Your Barber Profile",
+    "chooseBarberSubtitle": "Open your dedicated mobile chair screen",
+    "currentCustomerTitle": "Current Chair",
+    "nextCustomerTitle": "Next Customer Preview",
+    "stage5Badge": "Barber controls unlock in Stage 5",
+    "stage5Description": "Large 56px START and DONE service controls, live elapsed timer, On Break toggle protection, and next-eligible customer preview will be wired in Stage 5.",
+    "emptyChairTitle": "Chair Ready",
+    "emptyChairDescription": "Assigned customers called by reception will appear here immediately in Stage 5."
+  },
+  "display": {
+    "title": "Waiting Area TV Display",
+    "nowServingTitle": "Active Chairs",
+    "upcomingTitle": "Upcoming Tokens",
+    "upcomingSubtitle": "Next 5 waiting customers",
+    "readyLabel": "READY",
+    "onBreakLabel": "ON BREAK",
+    "stage5Notice": "Waiting-area TV layout active (16:9 high-contrast mode). Live token call highlights and audio chime connect in Stage 5.",
+    "emptyUpcoming": "No customers waiting — Walk-ins are welcome at reception."
+  },
+  "admin": {
+    "title": "Owner Settings",
+    "subtitle": "Salon configuration, catalog & daily analytics",
+    "tabStats": "Today's Statistics",
+    "tabServices": "Services",
+    "tabBarbers": "Barbers",
+    "tabSettings": "Queue Settings",
+    "kpiServed": "Customers Served",
+    "kpiWaiting": "Currently Waiting",
+    "kpiAvgWait": "Avg Wait Time",
+    "kpiNoShows": "No-Shows",
+    "kpiCancelled": "Cancelled",
+    "kpiServicesDone": "Services Completed",
+    "hoursSummary": "Operating Hours: {{open}} – {{close}} (Online auto-close 30 mins before closing)",
+    "stage6Badge": "Owner management controls unlock in Stage 6",
+    "stage6Description": "Bilingual service CRUD, barber roster & duty toggles, operating hours / online queue override, and live daily statistics will be implemented in Stage 6."
+  }
+}

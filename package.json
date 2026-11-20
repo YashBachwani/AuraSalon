@@ -1,0 +1,17 @@
+{
+  "name": "salon-queue-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aura Salon — Real-time multi-device Salon Queue Management System",
+  "scripts": {
+    "dev": "concurrently -k -n SERVER,CLIENT -c yellow,cyan \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "test": "npm --prefix server test",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

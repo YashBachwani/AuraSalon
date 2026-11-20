@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    background-color: #1F2937;
+    color: #F9FAFB;
+    font-family: "Plus Jakarta Sans", "Noto Sans Gujarati", system-ui, -apple-system, sans-serif;
+    min-height: 100%;
+  }
+
+  * {
+    border-color: #374151;
+  }
+
+  :focus-visible {
+    outline: 2px solid #D4A017;
+    outline-offset: 2px;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle dark scrollbar for tablet/desktop panels */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4B5563;
+}

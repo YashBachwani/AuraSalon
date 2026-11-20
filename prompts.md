@@ -30,5 +30,20 @@ This file records every prompt used during the design, development, debugging, t
   > 6. Keep Staff PIN simple (backend-validated, env-configured, no complex auth/IAM).
   > 7. Commit documentation updates cleanly before starting Stage 1.
   > Then implement Stage 1 only: React + Vite + Tailwind + React Router + Lucide + Express + Socket.IO + single database setup (`@libsql/client`), Aura Salon charcoal/gold design system, all 7 route screens, reusable components, loading/empty/error states, English & Gujarati translations + state-preserving toggle, `.env.example`, health-check endpoint, responsive verification (375px, 1024px, 1440px, 1920×1080), and production frontend build.
-- **Outcome (Part A & B):** Succeeded — Applied all 7 targeted documentation corrections across `AGENTS.md`, `docs/01-brief.md`, `docs/02-screens.md`, `docs/03-flows-rules.md`, and `README.md`; finalized single-engine SQLite/libSQL (`@libsql/client`) persistence decision; committed documentation updates cleanly before writing application code. *(Stage 1 implementation outcome appended below upon verification.)*
+- **Outcome (Part A & B):** Succeeded — Applied all 7 targeted documentation corrections across `AGENTS.md`, `docs/01-brief.md`, `docs/02-screens.md`, `docs/03-flows-rules.md`, and `README.md`; finalized single-engine SQLite/libSQL (`@libsql/client`) persistence decision; committed documentation updates cleanly (`8e5f541`) before writing application code.
+- **Outcome (Stage 1 Project Setup):** Succeeded:
+  - Initialized React 18 + Vite + Tailwind CSS + React Router v6 + Lucide React in `client/`.
+  - Configured custom salon dark charcoal (`#1F2937`), elevated card (`#111827`/`#263345`), and gold (`#D4A017`) design tokens in `tailwind.config.js` and `src/styles/index.css`.
+  - Created reusable UI primitives: `Button` (primary/secondary/outline/danger/ghost, 44px–56px tap targets), `Card` (elevated & gold-accented), `Input` (prefix, helper, error states), `Badge` (semantic tones, dot indicators), and `LoadingState`, `EmptyState`, and `ErrorState`.
+  - Built the three shared layout shells: `CustomerLayout` (mobile-first, back button, staff quick-links), `StaffLayout` (live clock, navigation tabs for Reception/Barber/Display/Admin), and `DisplayLayout` (16:9 full-screen, 5m readability, full-screen toggle).
+  - Scaffolded all 7 route screens (`/`, `/join`, `/status/:id`, `/reception`, `/barber/:name`, `/display`, `/admin`, plus `*` 404 handler) with professional Aura Salon branding.
+  - Implemented centralized bilingual localization in `client/src/locales/en.json` and `client/src/locales/gu.json` with 138 keys each and verified 100% 1:1 key parity.
+  - Implemented `LanguageContext` with `LanguageToggle` pill (`EN | ગુજરાતી`) that switches the entire interface instantaneously without resetting form inputs or active route state.
+  - Set up Node.js + Express + Socket.IO backend with single SQLite / libSQL database engine (`@libsql/client`), auto-migrating schema (`salon_settings`, `services`, `barbers`, `queue_entries`), and idempotent Indian seed data (Ravi, Amit, Imran; 6 services with INR pricing).
+  - Implemented `/api/health` endpoint reporting database status, realtime clients, and salon metadata; `/api/bootstrap` endpoint; and `/api/auth/verify-pin` validating staff/owner PINs.
+  - Implemented live connection status indicator with automatic reconnection and authoritative REST state re-fetching on reconnect and mobile tab wake (`visibilitychange`).
+  - Added `.env.example` templates for both server and client; updated `README.md` with complete local commands.
+  - Verified backend test suite passes with `node --test` (`health.test.js` and `stage1_e2e.test.js` testing Express, SQLite schema/seed, PIN auth, and Socket.IO handshake/ping).
+  - Verified client production build passes cleanly (`vite build` in 2.22s, 0 errors).
+  - Verified client route and i18n parity via `node client/test_routes.js`.
 

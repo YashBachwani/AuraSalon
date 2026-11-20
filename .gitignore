@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+client/dist/
+dist/
+
+# Environment variables (never commit real secrets)
+.env
+.env.local
+client/.env
+client/.env.local
+server/.env
+server/.env.local
+
+# Local SQLite database files
+server/data/
+*.db
+*.db-shm
+*.db-wal
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db

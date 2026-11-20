@@ -47,29 +47,70 @@ salon-queue/
 ```
 
 ## Installation Instructions
-*(Available after Stage 1 setup)*
 ```bash
 git clone <repository-url>
 cd salon-queue
+npm run install:all
+```
+*(Or install packages in root, client, and server folders:)*
+```bash
 npm install
-npm --prefix client install
 npm --prefix server install
+npm --prefix client install
 ```
 
 ## Environment Configuration
-*(Exact `.env.example` files will be created in Stage 1)*
-- **Server (`server/.env`):** `PORT`, `CLIENT_ORIGIN`, `DATABASE_URL` (optional locally; required in production), `STAFF_PIN`, `OWNER_PIN`, `SALON_TIMEZONE`
-- **Client (`client/.env`):** `VITE_API_URL`
+Copy the provided `.env.example` templates to `.env`:
+```bash
+# Server (.env)
+cp server/.env.example server/.env
+
+# Client (.env)
+cp client/.env.example client/.env
+```
+Key environment variables:
+- **Server (`server/.env`):**
+  - `PORT`: Server port (default `4000`)
+  - `CLIENT_ORIGIN`: Allowed client URL (default `http://localhost:5173`)
+  - `DATABASE_URL`: `file:./data/salon.db` for zero-config local SQLite; `:memory:` for automated testing; `libsql://...` for free Turso libSQL in production
+  - `DATABASE_AUTH_TOKEN`: Auth token when using Turso (leave blank for local SQLite)
+  - `STAFF_PIN`: Numeric staff PIN for Reception & Barber portals (default `1234`)
+  - `OWNER_PIN`: Numeric owner PIN for Admin dashboard (default `5678`)
+  - `NO_SHOW_GRACE_MINUTES`: Grace duration before No-show activates (default `10`)
+  - `SALON_TIMEZONE`: Salon timezone (default `Asia/Kolkata`)
+- **Client (`client/.env`):**
+  - `VITE_API_URL`: Backend server origin (default `http://localhost:4000`)
 
 ## How to Run Locally
+Run both server and client concurrently:
 ```bash
 npm run dev
 ```
-- Frontend runs at `http://localhost:5173`
-- Backend runs at `http://localhost:4000`
+Or run individually:
+```bash
+npm --prefix server run dev   # Express + Socket.IO server on http://localhost:4000
+npm --prefix client run dev   # Vite React app on http://localhost:5173
+```
+- Customer Mobile Web: `http://localhost:5173`
+- Join Queue: `http://localhost:5173/join`
+- My Status Tracker: `http://localhost:5173/status/:id`
+- Reception Dashboard (Tablet Landscape): `http://localhost:5173/reception`
+- Barber View (Mobile Chair): `http://localhost:5173/barber/:name`
+- Waiting Area TV Display (16:9 Fullscreen): `http://localhost:5173/display`
+- Owner Settings & Analytics: `http://localhost:5173/admin`
 
 ## Testing Instructions
-Run the automated backend queue engine tests (`npm --prefix server test`) and execute all 12 manual/end-to-end test cases documented in [`docs/03-flows-rules.md`](docs/03-flows-rules.md).
+Run the automated test suite:
+```bash
+# Backend unit & integration tests
+npm --prefix server test
+
+# Frontend production build verification
+npm --prefix client run build
+
+# Client route and translation key validation
+node client/test_routes.js
+```
 
 ## Deployment Details
 Full step-by-step deployment instructions for Vercel, Render/Railway, and SQLite / Turso libSQL (free tier) are documented in [`AGENTS.md`](AGENTS.md) and will be verified in Stage 10.

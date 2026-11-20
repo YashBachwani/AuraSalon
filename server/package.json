@@ -1,0 +1,22 @@
+{
+  "name": "salon-queue-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Express + Socket.IO + SQLite/libSQL backend for Aura Salon Queue Management System",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}
