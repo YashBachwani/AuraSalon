@@ -149,7 +149,10 @@ test('Queue Integration Test Suite — TC-01 to TC-14', async (t) => {
 
       const callRes = await fetch(`${serverUrl}/api/queue/call-next`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-staff-pin': '1234',
+        },
         body: JSON.stringify({ barberId: amitId }),
       });
 
@@ -382,7 +385,10 @@ test('Queue Integration Test Suite — TC-01 to TC-14', async (t) => {
       // Walk-in at Reception MUST SUCCEED (201) even when online join is closed!
       const walkinRes = await fetch(`${serverUrl}/api/queue/walkin`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-staff-pin': '1234',
+        },
         body: JSON.stringify({
           customerName: 'Reception Walkin Customer',
           phone: '9876543231',

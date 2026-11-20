@@ -10,6 +10,8 @@ console.log('=== Stage 1 Client & Route Verification ===');
 // 1. Verify all 7 route files exist
 const routeFiles = [
   'src/pages/HomePage.jsx',
+  'src/pages/LoginPage.jsx',
+  'src/pages/CustomerDashboardPage.jsx',
   'src/pages/JoinQueuePage.jsx',
   'src/pages/MyStatusPage.jsx',
   'src/pages/ReceptionPage.jsx',

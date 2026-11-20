@@ -20,7 +20,11 @@
     "barbers": "Our Barbers",
     "howItWorks": "How It Works",
     "quickLinks": "Quick Navigation",
-    "staffPortalsSubtitle": "Internal interfaces for tablet reception, barber chair and waiting-area TV display."
+    "staffPortalsSubtitle": "Internal interfaces for tablet reception, barber chair and waiting-area TV display.",
+    "signIn": "Sign In",
+    "logout": "Logout",
+    "myDashboard": "My Dashboard",
+    "portal": "Portal"
   },
   "connection": {
     "live": "Live Sync",
@@ -331,5 +335,43 @@
     "hoursSummary": "Operating Hours: {{open}} – {{close}} (Online auto-close 30 mins before closing)",
     "stage6Badge": "Owner management controls unlock in Stage 6",
     "stage6Description": "Bilingual service CRUD, barber roster & duty toggles, operating hours / online queue override, and live daily statistics will be implemented in Stage 6."
+  },
+  "auth": {
+    "title": "Role-Based Salon Portal",
+    "welcomeTitle": "Welcome to Aura Salon",
+    "welcomeSubtitle": "Your salon experience, made simple.",
+    "demoBadge": "Demo Portal Access",
+    "demoBannerTitle": "Demo & Evaluation Mode",
+    "demoBannerDesc": "Select any role below or use 1-click quick-fill demo credentials. No SMS or complex registration required.",
+    "roleCustomer": "Customer",
+    "roleCustomerDesc": "Track queue position & tickets",
+    "roleBarber": "Barber",
+    "roleBarberDesc": "Chair workspace & customer calls",
+    "roleReception": "Reception",
+    "roleReceptionDesc": "Queue management & walk-ins",
+    "roleOwner": "Salon Owner",
+    "roleOwnerDesc": "Settings, catalog & daily analytics",
+    "demoCodeLabel": "Verification Code",
+    "barberPinLabel": "Barber Security PIN",
+    "receptionPinLabel": "Reception Staff PIN",
+    "ownerPinLabel": "Owner Administrative PIN",
+    "signingIn": "Authenticating...",
+    "signInAs": "Sign In as",
+    "quickDemoTitle": "One-Click Demo Access",
+    "signedInAs": "Signed in as",
+    "accessDenied": "Access Denied",
+    "accessDeniedDesc": "You do not have permission to access this area.",
+    "returnToLogin": "Return to Login",
+    "switchAccount": "Switch Account"
+  },
+  "customer": {
+    "welcomeBack": "Welcome back,",
+    "btnJoinQueue": "Join Queue",
+    "activeTicketTitle": "Active Queue Booking",
+    "openTracker": "Open Live Tracker",
+    "noActiveBookingTitle": "You are not in the queue right now",
+    "noActiveBookingDesc": "Join our digital queue from anywhere and relax until your turn arrives.",
+    "recentVisits": "Recent Visits",
+    "noHistoryYet": "No previous visits recorded yet."
   }
 }

@@ -1,5 +1,25 @@
 export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/+$/, '');
 
+const TOKEN_KEY = 'aura_auth_token';
+
+export function getStoredToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token) {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch {}
+}
+
 export class ApiError extends Error {
   constructor(message, { status = 0, code = 'NETWORK_ERROR', details = null } = {}) {
     super(message);
@@ -15,13 +35,17 @@ export async function apiRequest(path, options = {}) {
   const timeoutMs = options.timeoutMs || 10000;
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+  const token = getStoredToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: options.method || 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers || {}),
-      },
+      headers,
       body: options.body ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
     });
@@ -56,6 +80,18 @@ export const api = {
       method: 'POST',
       body: { pin, role },
     }),
+
+  // Authentication & Demo Accounts
+  login: (credentials) =>
+    apiRequest('/api/auth/login', {
+      method: 'POST',
+      body: credentials,
+    }),
+  getMe: () => apiRequest('/api/auth/me'),
+  logout: () => apiRequest('/api/auth/logout', { method: 'POST' }),
+  getDemoCredentials: () => apiRequest('/api/auth/demo-credentials'),
+  getCustomerDashboard: (phone) =>
+    apiRequest(`/api/auth/customer/dashboard${phone ? `?phone=${phone}` : ''}`),
 
   // Queue Endpoints
   joinQueue: ({ customerName, phone, serviceIds, preferredBarberId }) =>

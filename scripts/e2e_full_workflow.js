@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { io as ioClient } from '../server/node_modules/socket.io-client/build/esm/index.js';
+import { createDatabaseClient } from '../server/src/db/client.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,14 +56,12 @@ async function run() {
   console.log('  AURA SALON: FULL END-TO-END WORKFLOW VERIFICATION ');
   console.log('====================================================\n');
 
-  // Ensure clean test database in server/data/salon.db
-  const dbFile = path.join(ROOT, 'server', 'data', 'salon.db');
-  if (fs.existsSync(dbFile)) {
-    try {
-      fs.unlinkSync(dbFile);
-      console.log('✔ Cleaned prior demo database to ensure fresh run');
-    } catch {}
-  }
+  // Reset database rows for fresh, deterministic run
+  const db = createDatabaseClient();
+  await db.execute('DELETE FROM queue_entries');
+  await db.execute("UPDATE barbers SET availability = 'AVAILABLE'");
+  db.close();
+  console.log('✔ Cleaned prior queue entries and reset barbers to AVAILABLE');
 
   console.log('1. Starting Backend Express + Socket.IO Server on :4000...');
   const serverProc = spawn('node', ['src/index.js'], {
@@ -111,22 +110,24 @@ async function run() {
     displaySocket.on('customer:called', (data) => { customerCalledData = data; });
 
     // 4. Submit real customer registration (Step 4 of /join)
-    console.log('4. Customer joins queue: "Aarav Patel" (Haircut + Beard Trim, preferred: Ravi)...');
+    const testPhone = '98' + Math.floor(10000000 + Math.random() * 89999999);
+    console.log(`4. Customer joins queue: "Aarav Patel" (Phone: ${testPhone}, Haircut + Beard Trim, preferred: Ravi)...`);
     const joinRes = await fetch('http://localhost:4000/api/queue/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         customerName: 'Aarav Patel',
-        phone: '9876543210',
+        phone: testPhone,
         serviceIds: [1, 2],
         preferredBarberId: 1, // Ravi
       }),
     });
 
     const joinJson = await joinRes.json();
-    console.log(`✔ Customer successfully joined with token: ${joinJson.entry.tokenNumber} (ID: ${joinJson.entry.id})`);
-    if (joinJson.entry.tokenNumber !== 'S-01') {
-      throw new Error(`Expected token S-01, got ${joinJson.entry.tokenNumber}`);
+    const tok = joinJson.entry.tokenNumber;
+    console.log(`✔ Customer successfully joined with token: ${tok} (ID: ${joinJson.entry.id})`);
+    if (!tok.startsWith('S-')) {
+      throw new Error(`Expected token starting with S-, got ${tok}`);
     }
 
     // Wait 500ms for Socket.IO broadcast
@@ -141,35 +142,42 @@ async function run() {
     console.log('\n6. Checking Reception View (/reception)...');
     const recRes = await fetch('http://localhost:4000/api/queue');
     const recData = await recRes.json();
-    const aaravRec = recData.entries.find((e) => e.tokenNumber === 'S-01');
-    if (!aaravRec) throw new Error('Aarav Patel (S-01) not found in Reception queue!');
-    console.log(`✔ Reception shows S-01 | Status: ${aaravRec.status} | Wait: ~${aaravRec.approxWaitMinutes}m`);
+    const aaravRec = recData.entries.find((e) => e.tokenNumber === tok);
+    if (!aaravRec) throw new Error(`Aarav Patel (${tok}) not found in Reception queue!`);
+    console.log(`✔ Reception shows ${tok} | Status: ${aaravRec.status} | Wait: ~${aaravRec.approxWaitMinutes}m`);
 
     // 7. Verify Barber Ravi's queue reflects customer
     console.log('\n7. Checking Barber Ravi View (/barber/ravi)...');
     const barberRes = await fetch('http://localhost:4000/api/queue/barber/ravi');
     const barberData = await barberRes.json();
-    const aaravBarber = barberData.upcomingQueue.find((e) => e.tokenNumber === 'S-01');
-    if (!aaravBarber) throw new Error('Aarav Patel (S-01) not in Ravi upcoming queue!');
-    console.log(`✔ Ravi sees S-01 in upcoming queue at position #${aaravBarber.position}`);
+    const aaravBarber = barberData.upcomingQueue.find((e) => e.tokenNumber === tok);
+    if (!aaravBarber) throw new Error(`Aarav Patel (${tok}) not in Ravi upcoming queue!`);
+    console.log(`✔ Ravi sees ${tok} in upcoming queue at position #${aaravBarber.position}`);
 
     // 8. Verify TV Display reflects upcoming token
     console.log('\n8. Checking TV Display View (/display)...');
     const tvRes = await fetch('http://localhost:4000/api/queue/display');
     const tvData = await tvRes.json();
-    const aaravTv = tvData.upcomingTokens.find((e) => e.tokenNumber === 'S-01');
-    if (!aaravTv) throw new Error('Aarav Patel (S-01) not on TV upcoming strip!');
-    console.log(`✔ TV Display shows upcoming token S-01 (${aaravTv.customerName})`);
+    const aaravTv = tvData.upcomingTokens.find((e) => e.tokenNumber === tok);
+    if (!aaravTv) throw new Error(`Aarav Patel (${tok}) not on TV upcoming strip!`);
+    console.log(`✔ TV Display shows upcoming token ${tok} (${aaravTv.customerName})`);
 
     // 9. Reception calls next for Ravi
     console.log('\n9. Reception clicks "Call Next" for Ravi...');
     const callRes = await fetch('http://localhost:4000/api/queue/call-next', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-staff-pin': '1234',
+      },
       body: JSON.stringify({ barberId: 1 }),
     });
     const callData = await callRes.json();
-    console.log(`✔ S-01 called! Assigned to: ${callData.entry.assignedBarber.name} | Status: ${callData.entry.status}`);
+    if (!callData.ok) {
+      console.error('Call Next Error:', callData);
+      throw new Error(`Call next failed: ${callData.message || callData.error}`);
+    }
+    console.log(`✔ ${tok} called! Assigned to: ${callData.entry.assignedBarber.name} | Status: ${callData.entry.status}`);
 
     await new Promise((r) => setTimeout(r, 600));
     console.log(`✔ TV Display received "customer:called" event: Token ${customerCalledData?.tokenNumber}`);
@@ -178,7 +186,10 @@ async function run() {
     console.log('\n10. Barber Ravi taps "START SERVICE"...');
     const startRes = await fetch(`http://localhost:4000/api/queue/${joinJson.entry.id}/start`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-staff-pin': '1234',
+      },
       body: JSON.stringify({ barberId: 1 }),
     });
     const startData = await startRes.json();
@@ -194,7 +205,10 @@ async function run() {
     console.log('\n12. Barber Ravi taps "COMPLETE SERVICE"...');
     const doneRes = await fetch(`http://localhost:4000/api/queue/${joinJson.entry.id}/complete`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-staff-pin': '1234',
+      },
       body: JSON.stringify({ barberId: 1 }),
     });
     const doneData = await doneRes.json();

@@ -16,6 +16,10 @@ export const env = {
   databaseAuthToken: process.env.DATABASE_AUTH_TOKEN || undefined,
   staffPin: process.env.STAFF_PIN || '1234',
   ownerPin: process.env.OWNER_PIN || '5678',
+  barberPin: process.env.BARBER_PIN || '1234',
+  demoCustomerPhone: process.env.DEMO_CUSTOMER_PHONE || '9876543210',
+  demoCustomerCode: process.env.DEMO_CUSTOMER_CODE || '123456',
+  authSecret: process.env.AUTH_SECRET || 'aura_salon_jwt_hmac_secret_key_2026',
   noShowGraceMinutes: Number(process.env.NO_SHOW_GRACE_MINUTES || 10),
   salonTimezone: process.env.SALON_TIMEZONE || 'Asia/Kolkata',
 };

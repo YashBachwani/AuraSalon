@@ -4,7 +4,18 @@
 
 **Hosted on:** Vercel (Frontend) + Render / Railway (Backend) + SQLite / Turso libSQL (Free Tier)
 
-**Staff test login/PIN:** *Pending configuration (will be populated with actual configured demo PINs once Stage 1–10 deployment is finalized)*
+### Demo Test Accounts & Quick Login Credentials (`/login`)
+
+The application features a role-based authentication portal at `/login` with 1-click demo autofill buttons:
+
+| Role | Account / Identifier | Demo Credential | Target Route | Isolation & Access Rules |
+|---|---|---|---|---|
+| **Customer** | Mobile: `9876543210` | Code: `123456` | `/customer` | Customer portal showing active ticket, live wait tracker link, and visit history. Cannot access Reception/Admin; cannot view other customers' tickets. |
+| **Barber (Ravi)** | Select: `Ravi` (ID: 1) | PIN: `1234` | `/barber/ravi` | Chair workspace with start/complete controls. Cannot access Amit/Imran's workspace or Admin dashboard. |
+| **Barber (Amit)** | Select: `Amit` (ID: 2) | PIN: `1234` | `/barber/amit` | Chair workspace for Amit. Cannot access other barbers' chairs. |
+| **Barber (Imran)** | Select: `Imran` (ID: 3) | PIN: `1234` | `/barber/imran` | Chair workspace for Imran. Cannot access other barbers' chairs. |
+| **Reception** | Staff Profile | PIN: `1234` | `/reception` | Full queue table, Call Next, walk-in registration, 10-min no-show management. |
+| **Salon Owner** | Administrator | PIN: `5678` | `/admin` | Owner settings, service catalog, barber roster, salon operating hours, daily stats. |
 
 ---
 
@@ -30,6 +41,9 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
+- **Stage 3 Role-Based Demo Login Screenshots:**
+  - Role-Based Demo Login Desktop (1280px): `screenshots/login_desktop_1280.png`
+  - Role-Based Demo Login Mobile (375px): `screenshots/login_mobile_375.png`
 - **Stage 2 Verified Screenshots:**
   - Home Page Desktop (1440px): `screenshots/home_desktop_1440.png`
   - Join Queue Page Desktop (1440px): `screenshots/join_desktop_1440.png`
@@ -43,10 +57,14 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
   - Waiting Area TV Display (`/display`): `screenshots/e2e_tv_display_verified.png`
 
 ## API Endpoints
-- `GET /api/health` — System status, database engine, real-time client counts.
-- `GET /api/bootstrap` — Salon operating hours, active services catalog, on-duty barbers.
-- `POST /api/auth/verify-pin` — Staff & Owner numeric PIN verification.
-- `POST /api/queue/join` — Customer online queue registration (enforces 1-3 services, 10-digit phone, 30-min closing cutoff).
+### Authentication & Role Authorization (`/api/auth`)
+- `POST /api/auth/login` — Authenticate Customer (phone + demo code), Barber (barberId + PIN), Reception (staff PIN), or Owner (owner PIN). Returns HMAC-SHA256 signed session token.
+- `GET /api/auth/me` — Verify and restore authenticated user session and active ticket.
+- `POST /api/auth/logout` — Revoke and invalidate session token.
+- `GET /api/auth/demo-credentials` — Public demo credentials catalog for fast evaluator testing.
+- `GET /api/auth/customer/dashboard` — Authenticated Customer portal data (active queue ticket + past visit history).
+
+### Queue Management & Operations (`/api/queue`)
 - `POST /api/queue/walkin` — Reception walk-in registration (open during salon operating hours).
 - `GET /api/queue` — Full active queue with dynamic wait-time & queue position calculations.
 - `GET /api/queue/:id` — Single customer status tracking by ID or token number.

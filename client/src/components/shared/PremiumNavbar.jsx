@@ -1,20 +1,64 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowRight, Menu, X, Sparkles, Scissors, Clock, Info, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  Menu,
+  X,
+  Sparkles,
+  Scissors,
+  Clock,
+  Info,
+  ShieldCheck,
+  LogIn,
+  LogOut,
+  User,
+  Users,
+  Crown,
+} from 'lucide-react';
 import { BrandHeader } from './BrandHeader.jsx';
 import { LanguageToggle } from './LanguageToggle.jsx';
 import { ConnectionIndicator } from './ConnectionIndicator.jsx';
 import { Button } from '../ui/Button.jsx';
 import { useScrollPosition } from '../../hooks/useScrollPosition.js';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export function PremiumNavbar({ currentRoute = 'home' }) {
   const { isScrolled } = useScrollPosition(40);
   const { t } = useLanguage();
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
+
+  const getDashboardPath = () => {
+    if (!user) return '/login';
+    if (user.role === 'customer') return '/customer';
+    if (user.role === 'barber') return `/barber/${user.slug || 'ravi'}`;
+    if (user.role === 'reception') return '/reception';
+    if (user.role === 'owner') return '/admin';
+    return '/';
+  };
+
+  const getRoleBadge = () => {
+    if (!user) return null;
+    if (user.role === 'customer') {
+      return { label: user.name || user.phone || t('auth.roleCustomer'), icon: User, color: 'text-salon-gold' };
+    }
+    if (user.role === 'barber') {
+      return { label: user.name || t('auth.roleBarber'), icon: Scissors, color: 'text-salon-gold' };
+    }
+    if (user.role === 'reception') {
+      return { label: t('auth.roleReception'), icon: Users, color: 'text-emerald-400' };
+    }
+    if (user.role === 'owner') {
+      return { label: t('auth.roleOwner'), icon: Crown, color: 'text-amber-400' };
+    }
+    return { label: 'User', icon: User, color: 'text-salon-gold' };
+  };
+
+  const roleInfo = getRoleBadge();
 
   const navLinks = [
     { href: '/#experience', label: t('nav.experience') || 'Experience', isAnchor: true },
@@ -82,9 +126,37 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
         </nav>
 
         {/* Right CTA & Controls */}
-        <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-2.5">
           <ConnectionIndicator compact />
           <LanguageToggle />
+
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <Link
+                to={getDashboardPath()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-salon-gold/30 bg-salon-goldMuted text-xs font-semibold text-salon-gold hover:border-salon-gold transition-colors"
+                title={t('nav.myDashboard') || 'My Dashboard'}
+              >
+                {roleInfo && <roleInfo.icon className="h-3.5 w-3.5" />}
+                <span className="truncate max-w-[120px]">{roleInfo?.label}</span>
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-white/10 bg-white/5 text-salon-textSecondary hover:text-white hover:border-white/20 transition-colors"
+                title={t('nav.logout') || 'Logout'}
+                aria-label={t('nav.logout') || 'Logout'}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button variant="ghost" size="sm" leftIcon={LogIn} className="text-xs text-salon-textSecondary hover:text-salon-gold">
+                {t('nav.signIn') || 'Sign In'}
+              </Button>
+            </Link>
+          )}
 
           {currentRoute !== 'join' ? (
             <Link to="/join">
@@ -124,6 +196,47 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen ? (
         <div className="sm:hidden border-b border-white/10 bg-[#141414]/98 backdrop-blur-2xl px-5 py-6 space-y-4 animate-in slide-in-from-top-4 duration-200">
+          {isAuthenticated ? (
+            <div className="flex items-center justify-between p-3 rounded-xl border border-salon-gold/20 bg-salon-goldMuted/30">
+              <Link
+                to={getDashboardPath()}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 min-w-0"
+              >
+                {roleInfo && <roleInfo.icon className="h-4 w-4 text-salon-gold shrink-0" />}
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-salon-text truncate">{roleInfo?.label}</span>
+                  <span className="block text-[10px] text-salon-gold uppercase font-medium">
+                    {t('nav.myDashboard') || 'My Dashboard'}
+                  </span>
+                </div>
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-xs text-salon-textSecondary hover:text-white"
+              >
+                <LogOut className="h-3 w-3" />
+                <span>{t('nav.logout') || 'Logout'}</span>
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/5 hover:border-salon-gold/40 text-sm font-semibold text-salon-gold"
+            >
+              <span className="flex items-center gap-2">
+                <LogIn className="h-4 w-4" />
+                <span>{t('nav.signIn') || 'Sign In / Demo Login'}</span>
+              </span>
+              <ArrowRight className="h-4 w-4 text-salon-textSecondary" />
+            </Link>
+          )}
+
           <nav className="flex flex-col space-y-2">
             <Link
               to="/"

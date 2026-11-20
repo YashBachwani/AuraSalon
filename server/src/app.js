@@ -4,6 +4,7 @@ import { env } from './config/env.js';
 import { createHealthRouter } from './routes/health.js';
 import { createBootstrapRouter } from './routes/bootstrap.js';
 import { createQueueRouter, createBarberRouter } from './routes/queue.js';
+import { createAuthRouter } from './routes/auth.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 export function createApp(db) {
@@ -23,6 +24,7 @@ export function createApp(db) {
   app.use(express.json({ limit: '1mb' }));
 
   app.use('/api/health', createHealthRouter(db));
+  app.use('/api/auth', createAuthRouter(db));
   app.use('/api', createBootstrapRouter(db));
   app.use('/api/queue', createQueueRouter(db));
   app.use('/api/barbers', createBarberRouter(db));

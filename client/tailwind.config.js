@@ -26,6 +26,15 @@ export default {
           ivory: '#F7F3EC',
           beige: '#E9DFD0',
           champagne: '#D4AF70',
+          // Stage 3 Warm Luxury Palette Tokens
+          warmBg: '#191817',
+          warmCard: '#292622',
+          antiqueGold: '#C89B45',
+          champagneGold: '#E8C982',
+          warmIvory: '#F5EFE4',
+          softBeige: '#D9D0C2',
+          bronze: '#9B7650',
+          warmMuted: '#A8A096',
         },
       },
       fontFamily: {

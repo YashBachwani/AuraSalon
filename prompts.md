@@ -94,5 +94,55 @@ This file records every prompt used during the design, development, debugging, t
   - Verified `npm --prefix client run build` passed cleanly in 2.36s.
   - Committed changes cleanly with message `feat: connect customer registration to live queue system`.
 
+---
+
+## Stage 3 — Role-Based Demo Login, User Experience & Visual Refinement
+
+### Prompt 5 — Implement Role-Based Demo Authentication, Dashboards & Visual Theme
+- **Date:** 2026-11-20
+- **Stage:** Stage 3 (Role-Based Demo Login, User Experience & Visual Refinement)
+- **Prompt Summary:**
+  > Transform Aura Salon into a complete role-based salon application with two primary objectives:
+  > 1. Implement a dedicated role-based demo login system (`/login`) for four roles (Customer, Barber, Reception, Owner) with signed JWT-like HMAC tokens, route guards (`ProtectedRoute`), and strict role-based data and workspace isolation (Customer can only see their own ticket/dashboard; Barber can only access/manage their own chair; Reception and Owner retain staff privileges).
+  > 2. Create the Customer Dashboard (`/customer`), refine visual styling with a warmer, more attractive salon identity (`#191817`, `#292622`, `#C89B45`, `#E8C982`, `#F5EFE4`, `#D9D0C2`, `#9B7650`, `#A8A096`), provide 1-click quick-fill demo credentials, write an automated test suite covering 20 test cases, maintain 100% English & Gujarati parity, and commit with message `feat: add role-based demo authentication and dashboards`.
+- **Outcome:** Succeeded:
+  - Built zero-dependency HMAC-SHA256 token signing and verification service (`server/src/services/authService.js`) with unique `jti` nonces, token revocation on logout, role authenticators (`authenticateCustomer`, `authenticateBarber`, `authenticateReception`, `authenticateOwner`), and dynamic demo credentials catalog generation from SQLite.
+  - Implemented authentication and authorization middleware (`server/src/middleware/authMiddleware.js`) supporting Bearer tokens and legacy PIN header fallback, with role guards rejecting cross-role and unauthorized workspace access.
+  - Created authentication REST API (`server/src/routes/auth.js`) mounting `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`, `/api/auth/demo-credentials`, and `/api/auth/customer/dashboard`.
+  - Added strict role guards across `server/src/routes/queue.js`: customer ticket isolation (customer can only view their own ticket, 403 on others), barber workspace isolation (barber can only manage their own chair, 403 on others), and staff action enforcement.
+  - Built frontend `AuthContext` (`client/src/context/AuthContext.jsx`) and `ProtectedRoute` enforcing role access and barber slug isolation with automated redirect on login and logout.
+  - Created luxury Role-Based Demo Login page (`client/src/pages/LoginPage.jsx`) at `/login` with 4 role cards, demo mode banners, 1-click autofill buttons, and auto-redirect.
+  - Created Customer Dashboard (`client/src/pages/CustomerDashboardPage.jsx`) at `/customer` displaying active booking card with live tracker link, empty state with Join Queue CTA, and past visit history.
+  - Updated `PremiumNavbar.jsx` and `StaffLayout.jsx` with user profile pills, role icons, and logout controls for both desktop and mobile viewports.
+  - Added Stage 3 warm luxury palette tokens to `client/tailwind.config.js` (`warmBg`, `warmCard`, `antiqueGold`, `champagneGold`, `warmIvory`, `softBeige`, `bronze`, `warmMuted`).
+  - Added 38 new translation keys to both `client/src/locales/en.json` and `client/src/locales/gu.json` maintaining 100% 1:1 key parity (337 keys each).
+  - Wrote automated test suite `server/src/auth_rbac.test.js` validating all 20 required test cases:
+    - TC-01: Customer login succeeds with valid demo credentials (phone: 9876543210, code: 123456)
+    - TC-02: Customer login fails with invalid verification code
+    - TC-03: Barber login succeeds for Ravi with valid PIN (1234)
+    - TC-04: Barber login succeeds for Amit with valid PIN (1234)
+    - TC-05: Barber login succeeds for Imran with valid PIN (1234)
+    - TC-06: Barber login fails with invalid PIN
+    - TC-07: Reception login succeeds with valid staff PIN (1234)
+    - TC-08: Reception login fails with invalid PIN
+    - TC-09: Owner login succeeds with valid owner PIN (5678)
+    - TC-10: Owner login fails with invalid PIN
+    - TC-11: Customer token cannot access Reception dashboard (returns 403 Forbidden)
+    - TC-12: Customer token cannot execute staff call-next action (returns 403 Forbidden)
+    - TC-13: Customer token cannot access another customer's ticket details (returns 403)
+    - TC-14: Barber token cannot access full reception queue table (returns 403 Forbidden)
+    - TC-15: Barber token for Ravi cannot access workspace for Amit (returns 403 Forbidden)
+    - TC-16: Unauthenticated requests to protected endpoints return 401 Unauthorized
+    - TC-17: Logging out revokes session / token verification
+    - TC-18: Customer dashboard returns active ticket correctly
+    - TC-19: Demo credentials catalog endpoint returns valid list of barbers and credentials
+    - TC-20: Queue operations work seamlessly with authenticated roles (Reception -> Barber -> Complete)
+  - Executed all server test suites (`auth_rbac.test.js`, `health.test.js`, `queue_integration.test.js`, `stage1_e2e.test.js`) with 100% pass rate (38/38 tests passing).
+  - Captured verified screenshots `screenshots/login_desktop_1280.png` and `screenshots/login_mobile_375.png`.
+  - Verified clean production build with `npm --prefix client run build` (0 errors).
+  - Updated `README.md` with demo test accounts table and API documentation.
+  - Committed changes cleanly with message `feat: add role-based demo authentication and dashboards`.
+
+
 
 
