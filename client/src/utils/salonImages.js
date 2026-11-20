@@ -39,3 +39,4 @@ export function getBarberImage(slug) {
   const normalized = String(slug || '').toLowerCase();
   return SALON_IMAGES.barbers[normalized] || null;
 }
+

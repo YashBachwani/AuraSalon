@@ -36,7 +36,28 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
   - Home Page Tablet (1024px): `screenshots/home_tablet_1024.png`
   - Home Page Mobile (375px): `screenshots/home_mobile_375.png`
   - Join Queue Page Mobile (375px): `screenshots/join_mobile_375.png`
-*(Full multi-device operational screenshots across Reception, Barber, TV Display, and Owner Dashboard will be added after implementation in Stage 8.)*
+- **End-to-End Live Queue Verified Screenshots:**
+  - Reception Dashboard Live Sync: `screenshots/e2e_reception_verified.png`
+  - Customer Live Status Tracker (`/status/:id`): `screenshots/e2e_customer_status_verified.png`
+  - Barber Chair Management (`/barber/:name`): `screenshots/e2e_barber_ravi_verified.png`
+  - Waiting Area TV Display (`/display`): `screenshots/e2e_tv_display_verified.png`
+
+## API Endpoints
+- `GET /api/health` — System status, database engine, real-time client counts.
+- `GET /api/bootstrap` — Salon operating hours, active services catalog, on-duty barbers.
+- `POST /api/auth/verify-pin` — Staff & Owner numeric PIN verification.
+- `POST /api/queue/join` — Customer online queue registration (enforces 1-3 services, 10-digit phone, 30-min closing cutoff).
+- `POST /api/queue/walkin` — Reception walk-in registration (open during salon operating hours).
+- `GET /api/queue` — Full active queue with dynamic wait-time & queue position calculations.
+- `GET /api/queue/:id` — Single customer status tracking by ID or token number.
+- `GET /api/queue/barber/:name` — Dedicated barber queue with active customer and upcoming roster.
+- `GET /api/queue/display` — 16:9 Waiting TV display payload with active chairs & upcoming tokens.
+- `POST /api/queue/call-next` — Call next customer for a barber respecting preferences and FCFS order.
+- `POST /api/queue/:id/start` — Barber starts customer service (`CALLED` -> `IN_CHAIR`).
+- `POST /api/queue/:id/complete` — Barber completes customer service (`IN_CHAIR` -> `DONE`).
+- `POST /api/queue/:id/no-show` — Reception marks customer No-Show (enforces 10-minute grace timer).
+- `POST /api/queue/:id/cancel` — Customer or reception cancels spot (`WAITING` or `CALLED`).
+- `PATCH /api/barbers/:id/availability` — Barber toggles break/available state.
 
 ## Project Structure
 ```text

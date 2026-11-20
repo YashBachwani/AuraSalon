@@ -68,4 +68,31 @@ This file records every prompt used during the design, development, debugging, t
   - Verified `node client/test_routes.js` (pass), `npm --prefix client run build` (pass in 2.57s), and `npm --prefix server test` (pass, 2/2 tests).
   - Committed changes cleanly with message `feat: build premium home and join queue frontend`.
 
+---
+
+## Critical Fix — End-to-End Live Queue Integration
+
+### Prompt 4 — Connect Customer Registration to Live Queue System
+- **Date:** 2026-11-20
+- **Stage:** End-to-End Queue Integration & Real-Time Sync
+- **Prompt Summary:**
+  > Resolved critical problem where joining the queue did not persist or appear across the Reception Dashboard and other live screens. Required investigating existing implementation, implementing real customer join queue API (`POST /api/queue/join` and `POST /api/queue/walkin`), persisting queue entries to the SQLite database via `@libsql/client` with atomic mutex sequence generation, connecting `/status/:id` to real token and status data, updating `/reception` with real-time queue synchronization, connecting `/barber/:name` and `/display` with real live queue entries, broadcasting Socket.IO events (`queue:created`, `queue:updated`, `customer:called`, `queue:started`, `queue:completed`, `queue:no-show`, `queue:cancelled`), executing mandatory tests (TC-01 through TC-14), capturing end-to-end browser verification, and committing with message `feat: connect customer registration to live queue system`.
+- **Outcome:** Succeeded:
+  - Investigated and diagnosed that `JoinQueuePage.jsx` was previously stopping at a client-side boundary without invoking backend endpoints, and backend queue routes/engine were unmounted.
+  - Built `server/src/services/waitTimeCalculator.js` implementing Any Barber and Specific Barber formulas, queue positions, and almost-next flags according to `docs/03-flows-rules.md`.
+  - Built `server/src/services/queueEngine.js` with atomic `AsyncMutex` serialization, sequential `S-01` token generation per business date, server-side validation (1-3 services, 10-digit phone, 30-min online join cutoff, barber break state, duplicate active phone rejection), FCFS `callNext` with preference preservation, `startService`, `completeService`, 10-min `markNoShow`, `cancelQueueEntry`, and Socket.IO broadcasts.
+  - Built `server/src/routes/queue.js` mounting `/api/queue` and `/api/barbers` in `app.js`.
+  - Updated `client/src/services/api.js` with all queue endpoints.
+  - Connected `JoinQueuePage.jsx` to `api.joinQueue`, loading state, duplicate phone ticket recovery link, and automatic redirection to `/status/:id`.
+  - Connected `MyStatusPage.jsx` to live queue entry, Socket.IO updates, "Almost Next" alert, full-screen gold "It's Your Turn!" banner with haptic vibration, and self-cancellation.
+  - Connected `ReceptionPage.jsx` to live queue table, live search, 10-min No-show countdown, Call Next button, cancel action, and "+ Add Walk-in" modal.
+  - Connected `BarberPage.jsx` with real assigned customer chair, large 56px START and DONE controls, live service timer, break toggle, and upcoming customer preview.
+  - Connected `DisplayPage.jsx` with high-contrast active chair cards, "NOW CALLING" flash highlights, and next 5 upcoming tokens.
+  - Maintained 100% bilingual parity across `en.json` and `gu.json` (299 keys each).
+  - Executed automated integration test suite in `server/src/queue_integration.test.js` covering TC-01 through TC-14 (all 14 passed).
+  - Executed full 18-step end-to-end workflow verification in `scripts/e2e_full_workflow.js` with real multi-screen Socket.IO sessions and captured 4 real headless Chrome screenshots.
+  - Verified `npm --prefix client run build` passed cleanly in 2.36s.
+  - Committed changes cleanly with message `feat: connect customer registration to live queue system`.
+
+
 

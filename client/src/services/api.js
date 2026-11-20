@@ -56,4 +56,52 @@ export const api = {
       method: 'POST',
       body: { pin, role },
     }),
+
+  // Queue Endpoints
+  joinQueue: ({ customerName, phone, serviceIds, preferredBarberId }) =>
+    apiRequest('/api/queue/join', {
+      method: 'POST',
+      body: { customerName, phone, serviceIds, preferredBarberId },
+    }),
+  addWalkIn: ({ customerName, phone, serviceIds, preferredBarberId }) =>
+    apiRequest('/api/queue/walkin', {
+      method: 'POST',
+      body: { customerName, phone, serviceIds, preferredBarberId },
+    }),
+  getQueue: ({ includeCompleted = false } = {}) =>
+    apiRequest(`/api/queue${includeCompleted ? '?includeCompleted=true' : ''}`),
+  getQueueEntry: (id) => apiRequest(`/api/queue/${id}`),
+  getBarberQueue: (slugOrId) => apiRequest(`/api/queue/barber/${slugOrId}`),
+  getDisplayQueue: () => apiRequest('/api/queue/display'),
+
+  // Staff Queue Operations
+  callNext: (barberId) =>
+    apiRequest('/api/queue/call-next', {
+      method: 'POST',
+      body: { barberId },
+    }),
+  startService: (entryId, barberId) =>
+    apiRequest(`/api/queue/${entryId}/start`, {
+      method: 'POST',
+      body: { barberId },
+    }),
+  completeService: (entryId, barberId) =>
+    apiRequest(`/api/queue/${entryId}/complete`, {
+      method: 'POST',
+      body: { barberId },
+    }),
+  markNoShow: (entryId) =>
+    apiRequest(`/api/queue/${entryId}/no-show`, {
+      method: 'POST',
+    }),
+  cancelQueueEntry: (entryId, reason) =>
+    apiRequest(`/api/queue/${entryId}/cancel`, {
+      method: 'POST',
+      body: { reason },
+    }),
+  updateBarberAvailability: (barberId, availability) =>
+    apiRequest(`/api/barbers/${barberId}/availability`, {
+      method: 'PATCH',
+      body: { availability },
+    }),
 };

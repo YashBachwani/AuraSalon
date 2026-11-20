@@ -28,3 +28,16 @@ export function getInitials(name = '') {
     .map((part) => part[0].toUpperCase())
     .join('');
 }
+
+export function maskPhone(phone = '') {
+  const cleaned = String(phone).replace(/\D/g, '');
+  if (cleaned.length < 10) return phone;
+  return `${cleaned.slice(0, 2)}******${cleaned.slice(8)}`;
+}
+
+export function formatTime12(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+}

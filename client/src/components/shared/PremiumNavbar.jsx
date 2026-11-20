@@ -175,3 +175,4 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
     </header>
   );
 }
+

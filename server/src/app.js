@@ -3,6 +3,7 @@ import cors from 'cors';
 import { env } from './config/env.js';
 import { createHealthRouter } from './routes/health.js';
 import { createBootstrapRouter } from './routes/bootstrap.js';
+import { createQueueRouter, createBarberRouter } from './routes/queue.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 export function createApp(db) {
@@ -23,6 +24,8 @@ export function createApp(db) {
 
   app.use('/api/health', createHealthRouter(db));
   app.use('/api', createBootstrapRouter(db));
+  app.use('/api/queue', createQueueRouter(db));
+  app.use('/api/barbers', createBarberRouter(db));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

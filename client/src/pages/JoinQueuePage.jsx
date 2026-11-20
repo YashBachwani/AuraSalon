@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   ArrowLeft,
@@ -13,6 +13,7 @@ import {
   User,
   Users,
 } from 'lucide-react';
+import { api } from '../services/api.js';
 import { PremiumNavbar } from '../components/shared/PremiumNavbar.jsx';
 import { PremiumFooter } from '../components/shared/PremiumFooter.jsx';
 import { ServiceCard } from '../components/ui/ServiceCard.jsx';
@@ -27,6 +28,7 @@ import { useLanguage } from '../context/LanguageContext.jsx';
 import { formatInr, formatTime24To12 } from '../utils/formatters.js';
 
 export function JoinQueuePage() {
+  const navigate = useNavigate();
   const { bootstrap, loading, error, refreshBootstrap } = useConnection();
   const { t, getLocalizedName } = useLanguage();
 
@@ -39,9 +41,11 @@ export function JoinQueuePage() {
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
   const [selectedBarberId, setSelectedBarberId] = useState(null); // null = Any Barber
 
-  // Field validation error state
+  // Field validation and submission error states
   const [errors, setErrors] = useState({});
-  const [submittedReview, setSubmittedReview] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [duplicateEntry, setDuplicateEntry] = useState(null);
 
   const salon = bootstrap?.salon;
   const services = bootstrap?.services || [];
@@ -151,12 +155,38 @@ export function JoinQueuePage() {
     });
   };
 
-  const handleConfirmReview = () => {
-    setSubmittedReview(true);
+  const handleConfirmReview = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setDuplicateEntry(null);
+
+    try {
+      const res = await api.joinQueue({
+        customerName: customerName.trim(),
+        phone: phone.replace(/\D/g, ''),
+        serviceIds: selectedServiceIds,
+        preferredBarberId: selectedBarberId === 'any' ? null : selectedBarberId,
+      });
+
+      if (res?.entry?.id) {
+        navigate(`/status/${res.entry.id}`);
+      }
+    } catch (err) {
+      if (err.code === 'DUPLICATE_ACTIVE_PHONE' && err.details?.existingEntry) {
+        setDuplicateEntry(err.details.existingEntry);
+        setSubmitError(err.message);
+      } else {
+        setSubmitError(err.message || t('common.errorDescription'));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
-    setSubmittedReview(false);
+    setSubmitError(null);
+    setDuplicateEntry(null);
     setCurrentStep(1);
   };
 
@@ -500,7 +530,7 @@ export function JoinQueuePage() {
                               {t('join.stepReviewSubtitle')}
                             </p>
                           </div>
-                          <Badge tone="gold">{t('join.demoReviewBadge')}</Badge>
+                          <Badge tone="gold">{t('join.stepReviewBadge')}</Badge>
                         </div>
 
                         {/* Review Summary Breakdown */}
@@ -567,57 +597,54 @@ export function JoinQueuePage() {
                           </div>
                         </div>
 
-                        {/* Submission / Confirmation Boundary (Stage 2) */}
-                        {!submittedReview ? (
-                          <div className="pt-2 flex items-center justify-between">
-                            <Button
-                              variant="outline"
-                              size="md"
-                              leftIcon={ArrowLeft}
-                              onClick={handleBack}
-                            >
-                              {t('join.btnBack')}
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="lg"
-                              rightIcon={CheckCircle2}
-                              onClick={handleConfirmReview}
-                              className="font-bold shadow-goldGlow"
-                            >
-                              {t('join.btnConfirm')}
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center space-y-4">
-                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-                              <CheckCircle2 className="h-6 w-6" />
+                        {/* Real Submission / Error Feedback */}
+                        {submitError && (
+                          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs space-y-3">
+                            <div className="flex items-start gap-2.5 text-red-400">
+                              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                              <div className="space-y-1">
+                                <p className="font-semibold text-sm">{submitError}</p>
+                                {duplicateEntry && (
+                                  <p className="text-salon-textSecondary">
+                                    {t('join.duplicateFoundNotice', { token: duplicateEntry.tokenNumber })}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            <div className="space-y-1">
-                              <h3 className="text-lg font-bold text-white">
-                                {t('join.bookingSuccessTitle')}
-                              </h3>
-                              <p className="text-xs text-salon-textSecondary max-w-md mx-auto">
-                                {t('join.demoReviewNotice')}
-                              </p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                              <Link to="/status/demo">
-                                <Button variant="primary" size="md" rightIcon={ArrowRight}>
-                                  {t('join.viewStatusDemo')}
-                                </Button>
-                              </Link>
-                              <Button
-                                variant="outline"
-                                size="md"
-                                leftIcon={RotateCcw}
-                                onClick={handleReset}
-                              >
-                                {t('join.resetBooking')}
-                              </Button>
-                            </div>
+                            {duplicateEntry && (
+                              <div className="pt-1 flex items-center gap-3">
+                                <Link to={`/status/${duplicateEntry.id}`}>
+                                  <Button variant="primary" size="sm" rightIcon={ArrowRight}>
+                                    {t('join.viewExistingTicket', { token: duplicateEntry.tokenNumber })}
+                                  </Button>
+                                </Link>
+                              </div>
+                            )}
                           </div>
                         )}
+
+                        <div className="pt-2 flex items-center justify-between">
+                          <Button
+                            variant="outline"
+                            size="md"
+                            leftIcon={ArrowLeft}
+                            onClick={handleBack}
+                            disabled={isSubmitting}
+                          >
+                            {t('join.btnBack')}
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="lg"
+                            rightIcon={isSubmitting ? undefined : CheckCircle2}
+                            onClick={handleConfirmReview}
+                            loading={isSubmitting}
+                            disabled={isSubmitting}
+                            className="font-bold shadow-goldGlow"
+                          >
+                            {isSubmitting ? t('join.submitting') : t('join.btnConfirm')}
+                          </Button>
+                        </div>
                       </div>
                     </ScrollReveal>
                   ) : null}
