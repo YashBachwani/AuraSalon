@@ -64,7 +64,7 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
   const getDashboardPath = () => {
     if (!user) return '/login';
     if (user.role === 'customer') return '/customer';
-    if (user.role === 'barber') return `/barber/${user.slug || 'ravi'}`;
+    if (user.role === 'barber') return `/barber/${user.slug || 'isha'}`;
     if (user.role === 'reception') return '/reception';
     if (user.role === 'owner') return '/admin';
     return '/';
@@ -257,7 +257,7 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
                       <Scissors className="h-3.5 w-3.5 text-salon-gold" />
                       <span className="truncate max-w-[100px]">{user.name || 'Barber'}</span>
                     </span>
-                    <Link to={`/barber/${user.slug || 'ravi'}`}>
+                    <Link to={`/barber/${user.slug || 'isha'}`}>
                       <Button
                         variant="primary"
                         size="md"
@@ -501,7 +501,7 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
               </Link>
 
               <Link
-                to="/barber/ravi"
+                to="/barber/isha"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-xl border border-white/5 bg-[#1C1C1C] hover:border-salon-gold/30 text-xs text-salon-textSecondary hover:text-white"
               >
@@ -551,7 +551,7 @@ export function PremiumNavbar({ currentRoute = 'home' }) {
 
               {user.role === 'barber' && (
                 <Link
-                  to={`/barber/${user.slug || 'ravi'}`}
+                  to={`/barber/${user.slug || 'isha'}`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block"
                 >

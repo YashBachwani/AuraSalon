@@ -40,7 +40,7 @@ test('Stage 1 End-to-End: Express API + Socket.IO Real-time handshake + Reconnec
     assert.equal(boot.counts.onDutyBarbers, 3);
     assert.deepEqual(
       boot.barbers.map((b) => b.slug),
-      ['ravi', 'amit', 'imran']
+      ['isha', 'amit', 'imran']
     );
 
     // 3. Socket.IO connection & handshake

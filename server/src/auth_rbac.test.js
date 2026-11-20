@@ -21,7 +21,7 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
   const serverUrl = `http://127.0.0.1:${port}`;
 
   let customerToken = '';
-  let raviToken = '';
+  let ishaToken = '';
   let amitToken = '';
   let imranToken = '';
   let receptionToken = '';
@@ -74,9 +74,9 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
     });
 
     // -------------------------------------------------------------
-    // 3. Barber login succeeds for Ravi with valid PIN (1234)
+    // 3. Barber login succeeds for Isha with valid PIN (1234)
     // -------------------------------------------------------------
-    await t.test('TC-03: Barber login succeeds for Ravi with valid PIN (1234)', async () => {
+    await t.test('TC-03: Barber login succeeds for Isha with valid PIN (1234)', async () => {
       const res = await fetch(`${serverUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -91,10 +91,10 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
       const data = await res.json();
       assert.equal(data.ok, true);
       assert.equal(data.user.role, 'barber');
-      assert.equal(data.user.name, 'Ravi');
-      assert.equal(data.user.slug, 'ravi');
+      assert.equal(data.user.name, 'Isha');
+      assert.equal(data.user.slug, 'isha');
       assert.ok(data.token);
-      raviToken = data.token;
+      ishaToken = data.token;
     });
 
     // -------------------------------------------------------------
@@ -318,7 +318,7 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
     // -------------------------------------------------------------
     await t.test('TC-14: Barber token cannot access full reception queue table (returns 403 Forbidden)', async () => {
       const res = await fetch(`${serverUrl}/api/queue`, {
-        headers: { Authorization: `Bearer ${raviToken}` },
+        headers: { Authorization: `Bearer ${ishaToken}` },
       });
 
       assert.equal(res.status, 403);
@@ -328,11 +328,11 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
     });
 
     // -------------------------------------------------------------
-    // 15. Barber token for Ravi cannot perform actions or access workspace for Amit (403)
+    // 15. Barber token for Isha cannot perform actions or access workspace for Amit (403)
     // -------------------------------------------------------------
-    await t.test('TC-15: Barber token for Ravi cannot access workspace for Amit (returns 403 Forbidden)', async () => {
+    await t.test('TC-15: Barber token for Isha cannot access workspace for Amit (returns 403 Forbidden)', async () => {
       const res = await fetch(`${serverUrl}/api/queue/barber/amit`, {
-        headers: { Authorization: `Bearer ${raviToken}` },
+        headers: { Authorization: `Bearer ${ishaToken}` },
       });
 
       assert.equal(res.status, 403);
@@ -403,7 +403,7 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
           customerName: 'Aarav Patel',
           phone: '9876543210',
           serviceIds: [1, 2],
-          preferredBarberId: 1, // preferred Ravi
+          preferredBarberId: 1, // preferred Isha
         }),
       });
       assert.equal(joinRes.status, 201);
@@ -435,7 +435,7 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
       assert.ok(data.catalog.owner);
       assert.ok(Array.isArray(data.catalog.barbers));
       assert.equal(data.catalog.barbers.length, 3);
-      assert.equal(data.catalog.barbers[0].name, 'Ravi');
+      assert.equal(data.catalog.barbers[0].name, 'Isha');
       assert.equal(data.catalog.barbers[1].name, 'Amit');
       assert.equal(data.catalog.barbers[2].name, 'Imran');
     });
@@ -444,7 +444,7 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
     // 20. Queue operations work seamlessly with authenticated roles
     // -------------------------------------------------------------
     await t.test('TC-20: Queue operations work seamlessly with authenticated roles (Reception -> Barber -> Complete)', async () => {
-      // 1. Reception calls next for Ravi
+      // 1. Reception calls next for Isha
       const callRes = await fetch(`${serverUrl}/api/queue/call-next`, {
         method: 'POST',
         headers: {
@@ -459,19 +459,19 @@ test('Stage 3 — Role-Based Auth & RBAC Test Suite (Cases 1 to 20)', async (t) 
       assert.equal(callData.entry.status, 'CALLED');
       assert.equal(callData.entry.assignedBarber.id, 1);
 
-      // 2. Barber Ravi starts service
+      // 2. Barber Isha starts service
       const startRes = await fetch(`${serverUrl}/api/queue/${createdEntryId}/start`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${raviToken}` },
+        headers: { Authorization: `Bearer ${ishaToken}` },
       });
       assert.equal(startRes.status, 200);
       const startData = await startRes.json();
       assert.equal(startData.entry.status, 'IN_CHAIR');
 
-      // 3. Barber Ravi completes service
+      // 3. Barber Isha completes service
       const completeRes = await fetch(`${serverUrl}/api/queue/${createdEntryId}/complete`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${raviToken}` },
+        headers: { Authorization: `Bearer ${ishaToken}` },
       });
       assert.equal(completeRes.status, 200);
       const completeData = await completeRes.json();

@@ -98,12 +98,12 @@ test('Queue Integration Test Suite — TC-01 to TC-14', async (t) => {
     // TC-04: Barber queue & Specific Barber Preference
     // -------------------------------------------------------------
     await t.test('TC-04: Barber queue', async () => {
-      // Fetch barbers to get Ravi and Amit's IDs
+      // Fetch barbers to get Isha and Amit's IDs
       const barbersRes = await db.execute('SELECT id, name, slug FROM barbers');
-      const ravi = barbersRes.rows.find((b) => b.slug === 'ravi');
+      const isha = barbersRes.rows.find((b) => b.slug === 'isha');
       const amit = barbersRes.rows.find((b) => b.slug === 'amit');
 
-      // Join customer specifically for Ravi
+      // Join customer specifically for Isha
       const joinRes = await fetch(`${serverUrl}/api/queue/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,19 +111,19 @@ test('Queue Integration Test Suite — TC-01 to TC-14', async (t) => {
           customerName: 'Kunal Shah',
           phone: '9876543211',
           serviceIds: [1],
-          preferredBarberId: ravi.id,
+          preferredBarberId: isha.id,
         }),
       });
       assert.equal(joinRes.status, 201);
       const joinData = await joinRes.json();
       assert.equal(joinData.entry.tokenNumber, 'S-02');
 
-      // Ravi's queue must contain Kunal Shah (S-02)
-      const raviQueueRes = await fetch(`${serverUrl}/api/queue/barber/ravi`);
-      const raviQueue = await raviQueueRes.json();
+      // Isha's queue must contain Kunal Shah (S-02)
+      const ishaQueueRes = await fetch(`${serverUrl}/api/queue/barber/isha`);
+      const ishaQueue = await ishaQueueRes.json();
       assert.ok(
-        raviQueue.upcomingQueue.some((e) => e.tokenNumber === 'S-02'),
-        "Ravi's queue must contain Kunal Shah"
+        ishaQueue.upcomingQueue.some((e) => e.tokenNumber === 'S-02'),
+        "Isha's queue must contain Kunal Shah"
       );
 
       // Amit's queue must NOT contain Kunal Shah (S-02), but may contain Any Barber (S-01)
@@ -132,7 +132,7 @@ test('Queue Integration Test Suite — TC-01 to TC-14', async (t) => {
       assert.equal(
         amitQueue.upcomingQueue.some((e) => e.tokenNumber === 'S-02'),
         false,
-        "Amit's queue must NOT contain a customer who specifically selected Ravi"
+        "Amit's queue must NOT contain a customer who specifically selected Isha"
       );
     });
 

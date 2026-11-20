@@ -175,5 +175,46 @@ This file records every prompt used during the design, development, debugging, t
   - Committed changes cleanly with message `feat: add role-based demo authentication and dashboards`.
 
 
+### Prompt 6 — Repair Owner Analytics Data Flow & Refine Homepage Navbar
+- **Date:** 2026-11-20
+- **Stage:** Bug Fix & UI Refinement (Owner Analytics + Navbar)
+- **Prompt Summary:**
+  > Fix two critical issues without breaking existing queue functionality:
+  > 1. Owner Dashboard statistics are not updating with actual customer and queue activity. Implement an authoritative backend analytics pipeline connecting live SQLite data to `/api/admin/analytics` across today overview, revenue overview, queue analytics, barber performance, service popularity, daily trend, and recent activity.
+  > 2. Home page navbar scrolling behaviour, navigation interactions, and mobile responsive drawer need improvement.
+  > Add 32 new translation keys in 1:1 parity (369 keys total), write 14-test suite in `server/src/admin_analytics.test.js`, run E2E verification script, and commit with message `fix: repair owner analytics and improve homepage navigation`.
+- **Outcome:** Succeeded:
+  - Created centralized `server/src/services/analyticsService.js` calculating dynamic metrics from SQLite and connected it to `server/src/routes/admin.js` with authentication guards.
+  - Refined `client/src/components/shared/PremiumNavbar.jsx` with smooth backdrop transitions, quick action pills, active route indicators, and mobile drawer.
+  - Added 32 translation keys to `en.json` and `gu.json` with 100% key parity (369 keys each).
+  - Wrote 14-test suite `server/src/admin_analytics.test.js` validating all analytics calculations and filters.
+  - Verified with `scripts/verify_owner_analytics_and_navbar.js` and committed as `cf12c0a`.
+
+
+### Prompt 7 — Immersive Three.js Homepage Redesign + Global Barber Rename to Isha
+- **Date:** 2026-11-20
+- **Stage:** 3D Creative Engineering & Brand Realignment
+- **Prompt Summary:**
+  > Transform the Aura Salon homepage into an immersive, scroll-driven Three.js 3D experience and globally rename barber "Ravi" to "Isha" (Gujarati: "ઈશા") across all routes, UI, mock data, seed files, tests, and documentation.
+  > 1. Creative 3D Scene: Study reference (or craft a luxury salon scene if video is inaccessible). Build procedural 3D assets (Golden Shears with articulated snip pivot, Straight Razor, Styling Comb, Beveled Mirror Ring, floating Gold Embers particles, studio 3-point lighting), 5 narrative scroll sections, WebGL capability detection, CSS fallback, `prefers-reduced-motion` support, DPR clamping, and zero-scroll-hijacking.
+  > 2. Barber Rename: Rename barber "Ravi" to "Isha" everywhere. Check case-insensitively and justify any remaining occurrence.
+  > 3. Verify zero breakage to queue engine, run tests, build frontend, capture screenshots (`home_3d_desktop_1280.png`, `home_3d_mobile_375.png`), and commit with message `feat: add immersive threejs salon homepage and rename barber to isha`.
+- **Outcome:** Succeeded:
+  - Reference Video Status: Handled reference `https://www.youtube.com/shorts/VwFlsB1dqRw` as inaccessible per instructions; engineered custom high-end procedural salon 3D direction matching Aura Salon luxury palette.
+  - Global Rename (Ravi -> Isha): Completely replaced all active UI, routes, database seed/migration, demo login credentials, tests, fixtures, and documentation from Ravi to Isha (`/barber/isha`, Gujarati: "ઈશા"). Only 3 strictly justified backward-compatible lines remain (legacy route redirect in `BarberPage.jsx`, automated DB migration query in `seed.js`, historical prompt log in `prompts.md`).
+  - Procedural 3D Scene Component: Built `client/src/components/three/Salon3DScene.jsx` using Three.js primitives (`CylinderGeometry`, `TorusGeometry`, `BoxGeometry`, `Points`), golden metallic materials, articulated scissor snipping animations linked to scroll, gold particle field, and camera choreography across 5 sections.
+  - Homepage Integration: Integrated `Salon3DScene` in `client/src/pages/HomePage.jsx` via `React.lazy` and `Suspense`, rendering glassmorphic sections that allow the 3D world to shine through seamlessly, with a dedicated spotlight card for Lead Master Barber Isha.
+  - Performance & Fallbacks: Added WebGL capability check with graceful CSS fallback, `prefers-reduced-motion` detection, DPR clamping (`Math.min(window.devicePixelRatio, 2)`), full GPU/Three.js resource disposal on unmount, and isolated Three.js into a code-split lazy chunk (535 kB).
+  - Localization Parity: Added 3 new keys (`leadBarberTitle`, `bookWithIsha`, `fellowArtisans`) maintaining 100% 1:1 key parity across `en.json` and `gu.json` (372 keys each).
+  - Automated & Visual Verification:
+    - Route tests passed (7 routes, 372 keys verified).
+    - Production build passed (`npm --prefix client run build`) in 3.36s.
+    - Full server test suite passed 52/52 tests (100% pass rate).
+    - End-to-end multi-device workflow verification passed 18/18 checks (`scripts/e2e_full_workflow.js`).
+    - Captured verified screenshots: `screenshots/home_3d_desktop_1280.png`, `screenshots/home_3d_mobile_375.png`, `screenshots/e2e_barber_isha_verified.png`, `screenshots/e2e_reception_verified.png`, `screenshots/e2e_customer_status_verified.png`, `screenshots/e2e_tv_display_verified.png`.
+  - Committed changes with message `feat: add immersive threejs salon homepage and rename barber to isha`.
+
+
+
 
 

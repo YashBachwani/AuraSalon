@@ -116,7 +116,7 @@ test('Owner Analytics API & Real-Time Sync Test Suite', async (t) => {
       const initialTotal = preData.analytics.todayOverview.totalCustomersToday;
       const initialWaiting = preData.analytics.todayOverview.waitingCount;
 
-      // Join customer 1 (Haircut = 150 INR, duration = 30m, preferred Ravi)
+      // Join customer 1 (Haircut = 150 INR, duration = 30m, preferred Isha)
       const join1 = await fetch(`${serverUrl}/api/queue/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -131,7 +131,7 @@ test('Owner Analytics API & Real-Time Sync Test Suite', async (t) => {
       const join1Data = await join1.json();
       entry1Id = join1Data.entry.id;
 
-      // Join customer 2 (Beard Trim = 80 INR, duration = 15m, preferred Ravi)
+      // Join customer 2 (Beard Trim = 80 INR, duration = 15m, preferred Isha)
       const join2 = await fetch(`${serverUrl}/api/queue/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,7 +159,7 @@ test('Owner Analytics API & Real-Time Sync Test Suite', async (t) => {
     // 7. Starting service updates the serving count (IN_CHAIR)
     // -------------------------------------------------------------
     await t.test('7. Calling customer and starting service updates serving count', async () => {
-      // 1. Reception calls next for Ravi (customer 1)
+      // 1. Reception calls next for Isha (customer 1)
       const callRes = await fetch(`${serverUrl}/api/queue/call-next`, {
         method: 'POST',
         headers: {
@@ -267,13 +267,13 @@ test('Owner Analytics API & Real-Time Sync Test Suite', async (t) => {
         headers: { Authorization: `Bearer ${ownerToken}` },
       });
       const data = await res.json();
-      const ravi = data.analytics.barberPerformance.find((b) => b.slug === 'ravi');
+      const isha = data.analytics.barberPerformance.find((b) => b.slug === 'isha');
 
-      assert.ok(ravi);
-      assert.equal(ravi.customersCompletedToday, 1);
-      assert.equal(ravi.revenueTodayInr, 150);
-      assert.equal(ravi.customersCurrentlyServing, 0);
-      assert.equal(ravi.availability, 'AVAILABLE');
+      assert.ok(isha);
+      assert.equal(isha.customersCompletedToday, 1);
+      assert.equal(isha.revenueTodayInr, 150);
+      assert.equal(isha.customersCurrentlyServing, 0);
+      assert.equal(isha.availability, 'AVAILABLE');
     });
 
     // -------------------------------------------------------------
@@ -324,3 +324,4 @@ test('Owner Analytics API & Real-Time Sync Test Suite', async (t) => {
     db.close();
   }
 });
+

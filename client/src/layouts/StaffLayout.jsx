@@ -24,7 +24,7 @@ export function StaffLayout({ children, subtitle, maxWidth = 'max-w-7xl' }) {
 
     if (user?.role === 'barber') {
       items.push({
-        to: `/barber/${user.slug || 'ravi'}`,
+        to: `/barber/${user.slug || 'isha'}`,
         label: `${user.name || t('nav.barber')}'s Chair`,
         icon: Scissors,
         end: false,
@@ -36,12 +36,12 @@ export function StaffLayout({ children, subtitle, maxWidth = 'max-w-7xl' }) {
     } else if (user?.role === 'owner') {
       items.push({ to: '/admin', label: t('nav.admin'), icon: Settings, end: false });
       items.push({ to: '/reception', label: t('nav.reception'), icon: Users, end: false });
-      items.push({ to: '/barber/ravi', label: t('nav.barber'), icon: Scissors, end: false });
+      items.push({ to: '/barber/isha', label: t('nav.barber'), icon: Scissors, end: false });
       items.push({ to: '/display', label: t('nav.display'), icon: Monitor, end: false });
     } else {
       // Default fallback
       items.push({ to: '/reception', label: t('nav.reception'), icon: Users, end: false });
-      items.push({ to: '/barber/ravi', label: t('nav.barber'), icon: Scissors, end: false });
+      items.push({ to: '/barber/isha', label: t('nav.barber'), icon: Scissors, end: false });
       items.push({ to: '/display', label: t('nav.display'), icon: Monitor, end: false });
       items.push({ to: '/admin', label: t('nav.admin'), icon: Settings, end: false });
     }

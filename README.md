@@ -11,7 +11,7 @@ The application features a role-based authentication portal at `/login` with 1-c
 | Role | Account / Identifier | Demo Credential | Target Route | Isolation & Access Rules |
 |---|---|---|---|---|
 | **Customer** | Mobile: `9876543210` | Code: `123456` | `/customer` | Customer portal showing active ticket, live wait tracker link, and visit history. Cannot access Reception/Admin; cannot view other customers' tickets. |
-| **Barber (Ravi)** | Select: `Ravi` (ID: 1) | PIN: `1234` | `/barber/ravi` | Chair workspace with start/complete controls. Cannot access Amit/Imran's workspace or Admin dashboard. |
+| **Barber (Isha)** | Select: `Isha` (ID: 1) | PIN: `1234` | `/barber/isha` | Chair workspace with start/complete controls. Cannot access Amit/Imran's workspace or Admin dashboard. |
 | **Barber (Amit)** | Select: `Amit` (ID: 2) | PIN: `1234` | `/barber/amit` | Chair workspace for Amit. Cannot access other barbers' chairs. |
 | **Barber (Imran)** | Select: `Imran` (ID: 3) | PIN: `1234` | `/barber/imran` | Chair workspace for Imran. Cannot access other barbers' chairs. |
 | **Reception** | Staff Profile | PIN: `1234` | `/reception` | Full queue table, Call Next, walk-in registration, 10-min no-show management. |
@@ -32,15 +32,19 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **Barber Mobile View:** Focused interface with large `START` and `DONE` buttons, live service timer, `On Break / Available` toggle, and next-customer preview.
 - **Waiting Area TV Display:** High-contrast 5-metre-readable display showing active barber tokens, gold call-out animation with optional chime, and the next 5 upcoming tokens.
 - **Owner Management Dashboard:** Manage services (EN/GU names, durations, INR prices, active toggles), barbers (duty & availability), opening/closing hours with automatic 30-minute online-join cutoff, and Today's Statistics.
+- **Immersive Three.js 3D Homepage:** Procedural WebGL salon experience featuring articulated golden shears, precision straight razor, styling comb, mirror ring, floating gold embers, 5-section scroll choreography, WebGL fallback, DPR clamping, and zero-scroll-hijacking.
 - **Bilingual Support:** Instant English & Gujarati toggle across all 7 screens without losing state.
 
 ## Technology Stack
-- **Frontend:** React, Vite, Tailwind CSS, React Router, Lucide React, Socket.IO Client
+- **Frontend:** React, Vite, Three.js (WebGL 3D Experience), Tailwind CSS, React Router, Lucide React, Socket.IO Client
 - **Backend:** Node.js, Express.js, Socket.IO
 - **Database:** Single SQLite / libSQL engine via `@libsql/client` (`file:./data/salon.db` locally, `:memory:` in automated tests, Turso free tier `libsql://...` or local SQLite in production)
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
+- **Immersive 3D Experience (Three.js WebGL):**
+  - Interactive 3D Salon Homepage Desktop (1280px): `screenshots/home_3d_desktop_1280.png`
+  - Interactive 3D Salon Homepage Mobile (375px): `screenshots/home_3d_mobile_375.png`
 - **Stage 3 Role-Based Demo Login Screenshots:**
   - Role-Based Demo Login Desktop (1280px): `screenshots/login_desktop_1280.png`
   - Role-Based Demo Login Mobile (375px): `screenshots/login_mobile_375.png`
@@ -55,7 +59,7 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **End-to-End Live Queue Verified Screenshots:**
   - Reception Dashboard Live Sync: `screenshots/e2e_reception_verified.png`
   - Customer Live Status Tracker (`/status/:id`): `screenshots/e2e_customer_status_verified.png`
-  - Barber Chair Management (`/barber/:name`): `screenshots/e2e_barber_ravi_verified.png`
+  - Barber Chair Management (`/barber/:name`): `screenshots/e2e_barber_isha_verified.png`
   - Waiting Area TV Display (`/display`): `screenshots/e2e_tv_display_verified.png`
 
 ## API Endpoints

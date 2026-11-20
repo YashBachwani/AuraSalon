@@ -116,7 +116,7 @@ Always consult these authoritative documents before changing code:
   ```
 - Keep responsibilities cleanly separated; never dump business logic or multiple screens into `App.jsx`.
 - Use environment variables (`VITE_API_URL`, `DATABASE_URL`, `DATABASE_AUTH_TOKEN`, `PORT`, `CLIENT_ORIGIN`, `STAFF_PIN`, `OWNER_PIN`, `NO_SHOW_GRACE_MINUTES`, `SALON_TIMEZONE`). Never hardcode secrets or expose server credentials in frontend code.
-- Preserve realistic Indian test/seed data (names like Ravi, Amit, Imran, Aarav Patel, Kunal Shah; 10-digit mobile numbers; INR pricing).
+- Preserve realistic Indian test/seed data (names like Isha, Amit, Imran, Aarav Patel, Kunal Shah; 10-digit mobile numbers; INR pricing).
 - Keep dependencies minimal—do not add bloated libraries when clean native or Tailwind solutions suffice.
 
 ---

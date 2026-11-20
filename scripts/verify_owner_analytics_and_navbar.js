@@ -132,8 +132,8 @@ async function run() {
       throw new Error('Waiting count did not increment after customer joined!');
     }
 
-    // 6. Reception Calls Next Customer for Barber Ravi & Barber Starts Service
-    console.log('\n6. Reception calls next customer for Barber Ravi & Barber starts service...');
+    // 6. Reception Calls Next Customer for Barber Isha & Barber Starts Service
+    console.log('\n6. Reception calls next customer for Barber Isha & Barber starts service...');
     const receptionistLoginRes = await fetch('http://localhost:4000/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -180,7 +180,7 @@ async function run() {
     }
 
     // 7. Barber Completes Service
-    console.log('\n7. Barber Ravi completes service for Customer 1...');
+    console.log('\n7. Barber Isha completes service for Customer 1...');
     await fetch(`http://localhost:4000/api/queue/${joinData1.entry.id}/complete`, {
       method: 'POST',
       headers: {

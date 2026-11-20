@@ -17,7 +17,7 @@ export function PremiumFooter() {
 
   const portalLinks = [
     { to: '/reception', label: t('nav.reception'), icon: Users },
-    { to: '/barber/ravi', label: t('nav.barber'), icon: Scissors },
+    { to: '/barber/isha', label: t('nav.barber'), icon: Scissors },
     { to: '/display', label: t('nav.display'), icon: Monitor },
     { to: '/admin', label: t('nav.admin'), icon: Settings },
   ];

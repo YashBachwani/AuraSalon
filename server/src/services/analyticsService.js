@@ -387,3 +387,4 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
     dailyTrend,
   };
 }
+

@@ -149,7 +149,7 @@ export function ProtectedRoute({ allowedRoles = [], children }) {
     if (!isAllowed) {
       // Redirect to their own role's home
       if (userRole === 'customer') return <Navigate to="/customer" replace />;
-      if (userRole === 'barber') return <Navigate to={`/barber/${user.slug || 'ravi'}`} replace />;
+      if (userRole === 'barber') return <Navigate to={`/barber/${user.slug || 'isha'}`} replace />;
       if (userRole === 'reception') return <Navigate to="/reception" replace />;
       if (userRole === 'owner') return <Navigate to="/admin" replace />;
       return <Navigate to="/" replace />;

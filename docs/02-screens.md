@@ -56,7 +56,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
    - Section title: `Barbers on Duty` + count badge.
    - List/grid of on-duty barber cards, each showing:
      - Circular avatar/initials badge.
-     - Barber Name (e.g., `Ravi`, `Amit`, `Imran`).
+     - Barber Name (e.g., `Isha`, `Amit`, `Imran`).
      - Specialty subtitle (e.g., `Haircut & Styling`).
      - Current Status Pill: `Available` (emerald), `Busy` (sky blue), or `On Break` (amber).
      - Individual estimated wait snippet (e.g., `Ready now` or `~25 min wait`).
@@ -123,13 +123,13 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
    - Section header: `Choose Your Barber`.
    - Selection chips/cards:
      - First card (default selected): **Any Barber** with subtitle *"Fastest Available"* and combined approximate wait estimate.
-     - One card per on-duty barber (`Ravi`, `Amit`, `Imran`, etc.) showing avatar, name, live availability pill (`Available` / `Busy` / `On Break`), and barber-specific approximate wait estimate (never borrowing another barber's idle chair to shorten a specific barber's estimate).
+     - One card per on-duty barber (`Isha`, `Amit`, `Imran`, etc.) showing avatar, name, live availability pill (`Available` / `Busy` / `On Break`), and barber-specific approximate wait estimate (never borrowing another barber's idle chair to shorten a specific barber's estimate).
      - **`ON_BREAK` Barber Behaviour:** A barber currently `ON_BREAK` **remains visible** in the selection list with an amber `On Break` pill, but their card is **disabled and does not accept new bookings** until they return to `AVAILABLE` (displays helper text: *"Currently on break — not accepting new bookings"*). `OFF_DUTY` barbers are excluded from customer booking selection.
 7. **Live Summary Card (Sticky Bottom Bar on Mobile / Side Summary on Desktop):**
    - Selected services list (or *"No services selected yet"*).
    - **Total Duration:** e.g., `45 mins`.
    - **Total Price:** e.g., `₹230`.
-   - **Selected Barber:** e.g., `Any Barber` or `Ravi`.
+   - **Selected Barber:** e.g., `Any Barber` or `Isha`.
    - **Estimated Wait:** e.g., `~35 mins` (recalculates immediately on every service or barber click).
    - Primary Gold Button: **Confirm & Join Queue**.
 
@@ -196,14 +196,14 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
    - **Visual Progress / Waiting Indicator:**
      - 4-step horizontal progress bar: `Waiting` → `Called` → `In Chair` → `Done`.
      - When `WAITING`: circular/ring countdown indicator showing **Queue Position** (e.g., `#3 in line`) and **Estimated Wait** (e.g., `~25 mins`).
-     - When `IN_CHAIR`: active service card with live ticking **Elapsed Service Time** (`12:34`) and assigned barber name (*"Currently being served by Ravi"*).
+     - When `IN_CHAIR`: active service card with live ticking **Elapsed Service Time** (`12:34`) and assigned barber name (*"Currently being served by Isha"*).
      - When `DONE`: emerald check-circle completion banner (*"Service Complete! Thank you for visiting Aura Salon."*).
      - When `NO_SHOW`: rose alert card (*"You were marked as a No-show after missing your call. Please join the queue again if you are still waiting."*) + **Rejoin Queue** button.
      - When `CANCELLED`: muted card (*"Your queue entry has been cancelled."*) + **Join Queue Again** button.
 6. **Booking Summary Card:**
    - Customer Name.
    - Selected Services list (localized names + durations + prices) & Total Price / Total Duration.
-   - Preferred Barber (e.g., `Any Barber` or `Ravi`).
+   - Preferred Barber (e.g., `Any Barber` or `Isha`).
    - Assigned Barber (displayed once `CALLED`, `IN_CHAIR`, or `DONE`).
    - Joined At timestamp.
 7. **Action Footer:**
@@ -322,7 +322,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 - **Empty State:**
   - Empty waiting queue: Clean centered state in table area — *"No customers waiting right now"* with quick **`+ Add Walk-in`** button.
   - Empty search result: *"No queue entries match '[query]'"* with **Clear Search** button.
-- **Error State:** Toast notifications for failed actions (e.g., `"Barber already has an active customer"` or `"No eligible waiting customers for Ravi"`), plus top banner if real-time connection drops.
+- **Error State:** Toast notifications for failed actions (e.g., `"Barber already has an active customer"` or `"No eligible waiting customers for Isha"`), plus top banner if real-time connection drops.
 
 ### Responsive Layouts
 - **Tablet Landscape (`1024px – 1280px`, primary target — 10-inch tablet):** Full 2-column split (`40%` left barber cards, `60%` right queue table), compact horizontal top bar, no horizontal overflow, minimum `44px` buttons.
@@ -335,13 +335,13 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
 
 - **Screen Name:** Barber View
 - **URL / Route:** `/barber/:name` *(with `/barber` redirecting or showing a quick Barber Picker card if no name parameter is provided)*
-- **Intended User:** Individual Barber (e.g., `/barber/ravi`, `/barber/amit`, `/barber/imran`)
+- **Intended User:** Individual Barber (e.g., `/barber/isha`, `/barber/amit`, `/barber/imran`)
 - **Purpose:** Give each barber a focused, distraction-free, one-handed mobile interface to start and finish their assigned customer's service, track service duration, manage break status, and see who is up next.
 
 ### UI Elements (Top to Bottom)
 1. **Staff PIN Gate (if unauthenticated in session):** Shared staff PIN session with Reception.
 2. **Top Header Bar:**
-   - Barber Avatar + **Barber Name** (e.g., `Ravi`) + dropdown/switch link to change barber if needed.
+   - Barber Avatar + **Barber Name** (e.g., `Isha`) + dropdown/switch link to change barber if needed.
    - Availability Status Pill (`Available`, `Busy`, `On Break`, `Off Duty`).
    - `EN | ગુજરાતી` language toggle + live sync dot.
 3. **Availability / Break Control Bar:**
@@ -431,7 +431,7 @@ This document specifies all **seven screens** of the Salon Queue Management Syst
    - 5 structured cards/rows showing the next 5 `WAITING` customers in FCFS order:
      - Large Token Number (`S-15`, `28px–36px`, gold).
      - Masked Customer Name (first name + last initial, e.g., `Kunal P.` for waiting-room privacy).
-     - Preferred / Target Barber (`Any Barber` or `Ravi`).
+     - Preferred / Target Barber (`Any Barber` or `Isha`).
      - Approximate Estimated Wait Time (`~15 min`).
 4. **Newly Called Highlight Banner (Transient 8-second subtle spotlight on top/card):**
    - Whenever any token transitions to `CALLED`, that barber's card pulses gently in gold and triggers the gentle chime (if Sound is enabled).

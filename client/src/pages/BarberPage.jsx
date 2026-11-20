@@ -46,7 +46,8 @@ export function BarberPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const activeBarberParam = String(name || 'ravi').trim().toLowerCase();
+  let activeBarberParam = String(name || 'isha').trim().toLowerCase();
+  if (activeBarberParam === 'ravi') activeBarberParam = 'isha';
 
   const fetchBarberData = useCallback(
     async ({ silent = false } = {}) => {

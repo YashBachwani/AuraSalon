@@ -57,7 +57,7 @@ test('Stage 1 backend health, bootstrap, seeding, and PIN verification', async (
     assert.equal(boot.counts.onDutyBarbers, 3);
     assert.deepEqual(
       boot.barbers.map((b) => b.name),
-      ['Ravi', 'Amit', 'Imran']
+      ['Isha', 'Amit', 'Imran']
     );
 
     // 3. PIN verification (valid & invalid)

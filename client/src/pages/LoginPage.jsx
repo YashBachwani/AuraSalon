@@ -34,7 +34,7 @@ export function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.role === 'customer') navigate('/customer', { replace: true });
-      else if (user.role === 'barber') navigate(`/barber/${user.slug || 'ravi'}`, { replace: true });
+      else if (user.role === 'barber') navigate(`/barber/${user.slug || 'isha'}`, { replace: true });
       else if (user.role === 'reception') navigate('/reception', { replace: true });
       else if (user.role === 'owner') navigate('/admin', { replace: true });
     }
@@ -111,7 +111,7 @@ export function LoginPage() {
         navigate(fromPath, { replace: true });
       } else {
         if (loggedUser.role === 'customer') navigate('/customer', { replace: true });
-        else if (loggedUser.role === 'barber') navigate(`/barber/${loggedUser.slug || 'ravi'}`, { replace: true });
+        else if (loggedUser.role === 'barber') navigate(`/barber/${loggedUser.slug || 'isha'}`, { replace: true });
         else if (loggedUser.role === 'reception') navigate('/reception', { replace: true });
         else if (loggedUser.role === 'owner') navigate('/admin', { replace: true });
       }
@@ -419,7 +419,7 @@ export function LoginPage() {
                   onClick={() => fillQuickDemo('barber', { barberId: 1 })}
                   className="px-2.5 py-1.5 rounded-lg border border-white/10 bg-black/40 text-[#D9D0C2] hover:border-[#C89B45] hover:text-[#C89B45] transition-colors"
                 >
-                  ✂️ Ravi (Barber)
+                  ✂️ Isha (Barber)
                 </button>
                 <button
                   type="button"

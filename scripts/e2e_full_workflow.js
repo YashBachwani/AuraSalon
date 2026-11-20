@@ -111,7 +111,7 @@ async function run() {
 
     // 4. Submit real customer registration (Step 4 of /join)
     const testPhone = '98' + Math.floor(10000000 + Math.random() * 89999999);
-    console.log(`4. Customer joins queue: "Aarav Patel" (Phone: ${testPhone}, Haircut + Beard Trim, preferred: Ravi)...`);
+    console.log(`4. Customer joins queue: "Aarav Patel" (Phone: ${testPhone}, Haircut + Beard Trim, preferred: Isha)...`);
     const joinRes = await fetch('http://localhost:4000/api/queue/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -119,7 +119,7 @@ async function run() {
         customerName: 'Aarav Patel',
         phone: testPhone,
         serviceIds: [1, 2],
-        preferredBarberId: 1, // Ravi
+        preferredBarberId: 1, // Isha
       }),
     });
 
@@ -146,13 +146,13 @@ async function run() {
     if (!aaravRec) throw new Error(`Aarav Patel (${tok}) not found in Reception queue!`);
     console.log(`✔ Reception shows ${tok} | Status: ${aaravRec.status} | Wait: ~${aaravRec.approxWaitMinutes}m`);
 
-    // 7. Verify Barber Ravi's queue reflects customer
-    console.log('\n7. Checking Barber Ravi View (/barber/ravi)...');
-    const barberRes = await fetch('http://localhost:4000/api/queue/barber/ravi');
+    // 7. Verify Barber Isha's queue reflects customer
+    console.log('\n7. Checking Barber Isha View (/barber/isha)...');
+    const barberRes = await fetch('http://localhost:4000/api/queue/barber/isha');
     const barberData = await barberRes.json();
     const aaravBarber = barberData.upcomingQueue.find((e) => e.tokenNumber === tok);
-    if (!aaravBarber) throw new Error(`Aarav Patel (${tok}) not in Ravi upcoming queue!`);
-    console.log(`✔ Ravi sees ${tok} in upcoming queue at position #${aaravBarber.position}`);
+    if (!aaravBarber) throw new Error(`Aarav Patel (${tok}) not in Isha upcoming queue!`);
+    console.log(`✔ Isha sees ${tok} in upcoming queue at position #${aaravBarber.position}`);
 
     // 8. Verify TV Display reflects upcoming token
     console.log('\n8. Checking TV Display View (/display)...');
@@ -162,8 +162,8 @@ async function run() {
     if (!aaravTv) throw new Error(`Aarav Patel (${tok}) not on TV upcoming strip!`);
     console.log(`✔ TV Display shows upcoming token ${tok} (${aaravTv.customerName})`);
 
-    // 9. Reception calls next for Ravi
-    console.log('\n9. Reception clicks "Call Next" for Ravi...');
+    // 9. Reception calls next for Isha
+    console.log('\n9. Reception clicks "Call Next" for Isha...');
     const callRes = await fetch('http://localhost:4000/api/queue/call-next', {
       method: 'POST',
       headers: {
@@ -183,7 +183,7 @@ async function run() {
     console.log(`✔ TV Display received "customer:called" event: Token ${customerCalledData?.tokenNumber}`);
 
     // 10. Barber starts service
-    console.log('\n10. Barber Ravi taps "START SERVICE"...');
+    console.log('\n10. Barber Isha taps "START SERVICE"...');
     const startRes = await fetch(`http://localhost:4000/api/queue/${joinJson.entry.id}/start`, {
       method: 'POST',
       headers: {
@@ -202,7 +202,7 @@ async function run() {
     console.log(`✔ Customer status confirmed: ${statusData.entry.status} | Token: ${statusData.entry.tokenNumber}`);
 
     // 12. Barber completes service
-    console.log('\n12. Barber Ravi taps "COMPLETE SERVICE"...');
+    console.log('\n12. Barber Isha taps "COMPLETE SERVICE"...');
     const doneRes = await fetch(`http://localhost:4000/api/queue/${joinJson.entry.id}/complete`, {
       method: 'POST',
       headers: {
@@ -218,7 +218,7 @@ async function run() {
     console.log('\n13. Capturing real end-to-end browser screenshots in Chrome...');
     await takeScreenshot('http://localhost:5173/reception', path.join(SCREENSHOT_DIR, 'e2e_reception_verified.png'), 1280, 800);
     await takeScreenshot(`http://localhost:5173/status/${joinJson.entry.id}`, path.join(SCREENSHOT_DIR, 'e2e_customer_status_verified.png'), 400, 850);
-    await takeScreenshot('http://localhost:5173/barber/ravi', path.join(SCREENSHOT_DIR, 'e2e_barber_ravi_verified.png'), 400, 850);
+    await takeScreenshot('http://localhost:5173/barber/isha', path.join(SCREENSHOT_DIR, 'e2e_barber_isha_verified.png'), 400, 850);
     await takeScreenshot('http://localhost:5173/display', path.join(SCREENSHOT_DIR, 'e2e_tv_display_verified.png'), 1920, 1080);
 
     console.log('\n====================================================');
