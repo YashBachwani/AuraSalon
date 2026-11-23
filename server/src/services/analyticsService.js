@@ -56,11 +56,12 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
 
   let waitingCount = 0;
   let calledCount = 0;
-  let servingCount = 0;
+  let servingCount = 0; // IN_CHAIR
   let completedCount = 0;
   let noShowCount = 0;
   let cancelledCount = 0;
   let todayRevenue = 0;
+  let servicesCompletedToday = 0;
 
   let totalWaitDurationMs = 0;
   let waitCountWithTimestamps = 0;
@@ -76,6 +77,13 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
     else if (status === 'DONE') {
       completedCount++;
       todayRevenue += Number(r.total_price_inr || 0);
+
+      try {
+        const svcs = JSON.parse(r.services_snapshot_json || '[]');
+        servicesCompletedToday += Array.isArray(svcs) ? svcs.length : 1;
+      } catch {
+        servicesCompletedToday += 1;
+      }
 
       // Duration from service_started_at to completed_at
       if (r.service_started_at && r.completed_at) {
@@ -101,8 +109,114 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
   }
 
   const totalCustomersToday = todayRows.length;
+  const finalizedToday = completedCount + noShowCount + cancelledCount;
+  const todayCompletionRate = finalizedToday > 0
+    ? Math.round((completedCount / finalizedToday) * 100)
+    : 0;
 
-  // 2. Revenue Overview (Strictly from DONE completed services)
+  const avgWaitMinutes = waitCountWithTimestamps > 0
+    ? Math.round(totalWaitDurationMs / waitCountWithTimestamps / 60000)
+    : 0;
+
+  const avgServiceDurationMinutes = serviceCountWithTimestamps > 0
+    ? Math.round(totalServiceDurationMs / serviceCountWithTimestamps / 60000)
+    : (completedCount > 0
+        ? Math.round(todayRows.filter((r) => r.status === 'DONE').reduce((acc, curr) => acc + Number(curr.total_duration_minutes || 0), 0) / completedCount)
+        : 0);
+
+  // 2. Range Data (today, 7d, 30d, all)
+  let rangeFilterSql = 'WHERE business_date = ?';
+  let rangeFilterArgs = [dateString];
+  if (range === '7d') {
+    rangeFilterSql = 'WHERE business_date >= ?';
+    rangeFilterArgs = [date7dAgo];
+  } else if (range === '30d') {
+    rangeFilterSql = 'WHERE business_date >= ?';
+    rangeFilterArgs = [date30dAgo];
+  } else if (range === 'all') {
+    rangeFilterSql = '';
+    rangeFilterArgs = [];
+  }
+
+  const rangeEntriesRes = await db.execute({
+    sql: `SELECT id, status, total_price_inr, total_duration_minutes,
+                 created_at, called_at, service_started_at, completed_at,
+                 preferred_barber_id, assigned_barber_id, services_snapshot_json
+          FROM queue_entries
+          ${rangeFilterSql}`,
+    args: rangeFilterArgs,
+  });
+
+  const rangeRows = rangeEntriesRes.rows;
+
+  let totalRegistrationsInRange = rangeRows.length;
+  let completedInRange = 0;
+  let servingInRange = 0;
+  let waitingInRange = 0;
+  let calledInRange = 0;
+  let noShowInRange = 0;
+  let cancelledInRange = 0;
+  let revenueInRange = 0;
+  let servicesCompletedInRange = 0;
+
+  let rangeWaitDurationMs = 0;
+  let rangeWaitCount = 0;
+  let rangeServiceDurationMs = 0;
+  let rangeServiceCount = 0;
+
+  for (const r of rangeRows) {
+    const st = String(r.status);
+    if (st === 'WAITING') waitingInRange++;
+    else if (st === 'CALLED') calledInRange++;
+    else if (st === 'IN_CHAIR') servingInRange++;
+    else if (st === 'DONE') {
+      completedInRange++;
+      revenueInRange += Number(r.total_price_inr || 0);
+
+      try {
+        const svcs = JSON.parse(r.services_snapshot_json || '[]');
+        servicesCompletedInRange += Array.isArray(svcs) ? svcs.length : 1;
+      } catch {
+        servicesCompletedInRange += 1;
+      }
+
+      if (r.service_started_at && r.completed_at) {
+        const startMs = new Date(r.service_started_at).getTime();
+        const doneMs = new Date(r.completed_at).getTime();
+        if (doneMs >= startMs) {
+          rangeServiceDurationMs += (doneMs - startMs);
+          rangeServiceCount++;
+        }
+      }
+    } else if (st === 'NO_SHOW') noShowInRange++;
+    else if (st === 'CANCELLED') cancelledInRange++;
+
+    if (r.called_at && r.created_at) {
+      const createdMs = new Date(r.created_at).getTime();
+      const calledMs = new Date(r.called_at).getTime();
+      if (calledMs >= createdMs) {
+        rangeWaitDurationMs += (calledMs - createdMs);
+        rangeWaitCount++;
+      }
+    }
+  }
+
+  const finalizedRange = completedInRange + noShowInRange + cancelledInRange;
+  const rangeCompletionRate = finalizedRange > 0
+    ? Math.round((completedInRange / finalizedRange) * 100)
+    : 0;
+
+  const rangeAvgWaitMinutes = rangeWaitCount > 0
+    ? Math.round(rangeWaitDurationMs / rangeWaitCount / 60000)
+    : 0;
+
+  const rangeAvgServiceDurationMinutes = rangeServiceCount > 0
+    ? Math.round(rangeServiceDurationMs / rangeServiceCount / 60000)
+    : (completedInRange > 0
+        ? Math.round(rangeRows.filter((r) => r.status === 'DONE').reduce((acc, curr) => acc + Number(curr.total_duration_minutes || 0), 0) / completedInRange)
+        : 0);
+
+  // 3. Revenue Overview (Strictly from DONE completed services)
   const [rev7dRes, rev30dRes, revAllRes, allTimeCustomersRes] = await Promise.all([
     db.execute({
       sql: `SELECT COALESCE(SUM(total_price_inr), 0) AS rev
@@ -135,22 +249,6 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
   const allTimeCompletedCount = Number(revAllRes.rows[0]?.completed_count || 0);
   const uniqueCustomerCount = Number(allTimeCustomersRes.rows[0]?.unique_customers || 0);
   const allTimeEntriesCount = Number(allTimeCustomersRes.rows[0]?.total_all_time_entries || 0);
-
-  // 3. Queue Analytics Calculations
-  const avgWaitMinutes = waitCountWithTimestamps > 0
-    ? Math.round(totalWaitDurationMs / waitCountWithTimestamps / 60000)
-    : null;
-
-  const avgServiceDurationMinutes = serviceCountWithTimestamps > 0
-    ? Math.round(totalServiceDurationMs / serviceCountWithTimestamps / 60000)
-    : (completedCount > 0
-        ? Math.round(todayRows.filter((r) => r.status === 'DONE').reduce((acc, curr) => acc + Number(curr.total_duration_minutes || 0), 0) / completedCount)
-        : null);
-
-  const finalizedTotal = completedCount + noShowCount + cancelledCount;
-  const completionRate = finalizedTotal > 0
-    ? Math.round((completedCount / finalizedTotal) * 100)
-    : null;
 
   // 4. Barber Performance
   const barbersRes = await db.execute(
@@ -200,31 +298,10 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
   });
 
   // 5. Service Popularity & Analytics
-  // Determine date boundary based on range parameter
-  let serviceFilterSql = 'WHERE business_date = ?';
-  let serviceFilterArgs = [dateString];
-  if (range === '7d') {
-    serviceFilterSql = 'WHERE business_date >= ?';
-    serviceFilterArgs = [date7dAgo];
-  } else if (range === '30d') {
-    serviceFilterSql = 'WHERE business_date >= ?';
-    serviceFilterArgs = [date30dAgo];
-  } else if (range === 'all') {
-    serviceFilterSql = '';
-    serviceFilterArgs = [];
-  }
-
-  const rangeEntriesRes = await db.execute({
-    sql: `SELECT id, status, total_price_inr, services_snapshot_json
-          FROM queue_entries
-          ${serviceFilterSql}`,
-    args: serviceFilterArgs,
-  });
-
   const serviceCountMap = new Map();
   const serviceRevenueMap = new Map();
 
-  for (const row of rangeEntriesRes.rows) {
+  for (const row of rangeRows) {
     let svcs = [];
     try {
       svcs = JSON.parse(row.services_snapshot_json || '[]');
@@ -273,7 +350,7 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
     ? serviceStats[0]
     : null;
 
-  // 6. Recent Queue Activity Log (10 most recent entries today)
+  // 6. Recent Queue Activity Log (15 most recent entries today)
   const recentRes = await db.execute({
     sql: `SELECT q.id, q.token_number, q.customer_name, q.phone, q.status, q.source,
                  q.total_price_inr, q.total_duration_minutes, q.services_snapshot_json,
@@ -283,7 +360,7 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
           LEFT JOIN barbers b ON q.assigned_barber_id = b.id
           WHERE q.business_date = ?
           ORDER BY q.id DESC
-          LIMIT 10`,
+          LIMIT 15`,
     args: [dateString],
   });
 
@@ -338,53 +415,98 @@ export async function getOwnerAnalytics(db, { range = 'today' } = {}) {
     timezone: env.salonTimezone || 'Asia/Kolkata',
     selectedRange: range,
 
-    // A. Today's Overview
+    // A. Today's Overview (Comprehensive with full alias parity)
     todayOverview: {
       totalCustomersToday,
+      totalRegistrationsToday: totalCustomersToday,
       waitingCount,
       calledCount,
       servingCount, // IN_CHAIR
+      inChairCount: servingCount,
       completedCount,
+      completedToday: completedCount,
       noShowCount,
       cancelledCount,
+      servicesCompletedToday,
+      completionRate: todayCompletionRate,
+      completionRatePercent: todayCompletionRate,
       totalAllTimeCustomers: uniqueCustomerCount,
       totalAllTimeEntries: allTimeEntriesCount,
     },
 
-    // B. Revenue Overview (Estimated Service Revenue from DONE entries)
+    // B. Range Overview
+    rangeOverview: {
+      range,
+      totalRegistrationsInRange,
+      completedInRange,
+      servingInRange,
+      waitingInRange,
+      calledInRange,
+      noShowInRange,
+      cancelledInRange,
+      revenueInRange,
+      revenueInRangeInr: revenueInRange,
+      servicesCompletedInRange,
+      completionRatePercent: rangeCompletionRate,
+      avgWaitMinutes: rangeAvgWaitMinutes,
+      avgActualWaitMinutes: rangeAvgWaitMinutes,
+      avgServiceDurationMinutes: rangeAvgServiceDurationMinutes,
+    },
+
+    // C. Revenue Overview (Strictly from DONE completed services)
     revenueOverview: {
       todayRevenue,
+      revenueTodayInr: todayRevenue,
       weeklyRevenue,
+      revenueLast7DaysInr: weeklyRevenue,
       monthlyRevenue,
+      revenueLast30DaysInr: monthlyRevenue,
       totalCompletedRevenue,
+      revenueAllTimeInr: totalCompletedRevenue,
+      revenueInRange,
+      revenueInRangeInr: revenueInRange,
       allTimeCompletedCount,
       estimatedCompletedRevenue: true,
       currency: 'INR',
     },
 
-    // C. Queue Analytics
-    queueAnalytics: {
-      avgWaitMinutes,
-      avgServiceDurationMinutes,
-      completionRate,
-      totalCustomersToday,
+    // D. Customer Metrics
+    customerMetrics: {
+      totalUniqueCustomers: uniqueCustomerCount,
+      totalAllTimeEntries: allTimeEntriesCount,
+      allTimeCompletedCount,
+      totalCompletedRevenue,
     },
 
-    // D. Barber Performance
+    // E. Queue Analytics
+    queueAnalytics: {
+      avgWaitMinutes,
+      avgActualWaitMinutes: avgWaitMinutes,
+      avgServiceDurationMinutes,
+      completionRate: todayCompletionRate,
+      completionRatePercent: todayCompletionRate,
+      totalCustomersToday,
+      totalRegistrationsInRange,
+      completedInRange,
+      servicesCompletedInRange,
+      noShowInRange,
+      cancelledInRange,
+    },
+
+    // F. Barber Performance
     barberPerformance: barberStats,
 
-    // E. Service Analytics
+    // G. Service Analytics
     serviceAnalytics: {
       services: serviceStats,
       mostPopularService,
       totalUniqueServices: serviceStats.length,
     },
 
-    // F. Recent Activity Log
+    // H. Recent Activity Log
     recentActivity,
 
-    // G. 7-Day Trend
+    // I. Daily Trend
     dailyTrend,
   };
 }
-

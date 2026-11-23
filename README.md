@@ -42,11 +42,11 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
-- **Static Luxury Hero Screenshots:**
-  - Static Hero Desktop (1280px): `screenshots/home_hero_desktop_1280.png`
-  - Static Hero Mobile (375px): `screenshots/home_hero_mobile_375.png`
-- **Owner Management & Administration Screenshots:**
-  - Owner Analytics & Statistics Tab (`/admin`): `screenshots/admin_overview_stats_desktop.png`
+- **Authentic Photograph Full-Background Hero Screenshots:**
+  - Full-Background Hero Desktop (1280px): `screenshots/home_hero_desktop_1280.png` (authentic salon interior photo with dark charcoal contrast overlay, gold typography, and zero 3D overhead)
+  - Full-Background Hero Mobile (375px): `screenshots/home_hero_mobile_375.png`
+- **Owner Analytics & Administration Screenshots:**
+  - Owner Analytics & Live Queue Breakdown (`/admin`): `screenshots/admin_overview_stats_desktop.png` (database-backed KPIs, Completed, In-Chair, Waiting, Called, No-Show, and Cancelled status breakdown)
   - Owner Services Management Tab (`/admin`): `screenshots/admin_manage_services_desktop.png`
   - Add New Service Modal (`/admin`): `screenshots/admin_add_service_modal.png`
   - Owner Barbers Management Tab (`/admin`): `screenshots/admin_manage_barbers_desktop.png`

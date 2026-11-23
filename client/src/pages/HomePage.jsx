@@ -108,167 +108,126 @@ export function HomePage() {
         </div>
       ) : (
         <main className="flex-1">
-          {/* SECTION 2: Cinematic Luxury 3D Hero */}
+          {/* SECTION 2: Authentic Salon Photograph Full-Background Hero */}
           <section
             id="hero"
             aria-label="Hero"
-            className="scroll-mt-24 relative min-h-[96vh] flex items-center justify-center overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24 bg-gradient-to-b from-[#191817] via-[#161514] to-[#141414]"
+            className="scroll-mt-24 relative min-h-[92vh] flex items-center overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24 bg-[#191817] bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: "url('/salon-hero-bg.jpg')",
+            }}
           >
-            {/* Subtle atmospheric ambient glow */}
+            {/* Subtle dark charcoal and black contrast overlays to maintain salon visibility and crisp text legibility */}
             <div
-              className="pointer-events-none absolute -top-36 right-10 h-[500px] w-[500px] rounded-full bg-salon-gold/10 blur-[130px]"
+              className="absolute inset-0 bg-gradient-to-r from-[#191817]/95 via-[#191817]/85 to-[#191817]/50 pointer-events-none"
               aria-hidden="true"
             />
             <div
-              className="pointer-events-none absolute bottom-0 left-0 h-[380px] w-[380px] rounded-full bg-[#9B7650]/10 blur-[120px]"
+              className="absolute inset-0 bg-black/35 pointer-events-none"
               aria-hidden="true"
             />
 
             <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                {/* LEFT COLUMN: Editorial Typography & Actions (7 cols on lg) */}
-                <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
-                  {/* Brand Eyebrow & Live Operating Status */}
-                  <ScrollReveal delay={50} initiallyVisible>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-salon-gold/40 bg-salon-gold/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-salon-gold shadow-goldSubtle backdrop-blur-md">
-                        <Sparkles className="h-3.5 w-3.5 animate-pulse text-salon-gold" />
-                        <span>{t('home.heroEyebrow') || 'THE ART OF GROOMING'}</span>
-                      </div>
+              {/* Left-Aligned Clean Typographic Content */}
+              <div className="max-w-2xl text-left space-y-6 sm:space-y-8">
+                {/* Brand Eyebrow & Live Operating Status */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-salon-gold/40 bg-[#191817]/80 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-salon-gold shadow-goldSubtle backdrop-blur-md">
+                    <Sparkles className="h-3.5 w-3.5 text-salon-gold" />
+                    <span>{t('home.heroEyebrow')}</span>
+                  </div>
 
-                      {salon ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-xs font-medium text-salon-textSecondary backdrop-blur-md tabular-nums">
-                          <Clock className="h-3.5 w-3.5 text-salon-gold" aria-hidden="true" />
-                          <span>
-                            {t('home.openToday', {
-                              open: formatTime24To12(salon.openTime),
-                              close: formatTime24To12(salon.closeTime),
-                            })}
-                          </span>
-                        </div>
-                      ) : null}
-                    </div>
-                  </ScrollReveal>
-
-                  {/* Editorial Master Headline */}
-                  <ScrollReveal delay={150} initiallyVisible>
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-serif leading-[1.08]">
-                      <span className="block">{t('home.heroHeadlinePrimary')}</span>
-                      <span className="block text-gold-gradient mt-1">
-                        {t('home.heroHeadlineSecondary')}
+                  {salon ? (
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/60 px-3.5 py-1.5 text-xs font-medium text-salon-textSecondary backdrop-blur-md tabular-nums">
+                      <Clock className="h-3.5 w-3.5 text-salon-gold" aria-hidden="true" />
+                      <span>
+                        {t('home.openToday', {
+                          open: formatTime24To12(salon.openTime),
+                          close: formatTime24To12(salon.closeTime),
+                        })}
                       </span>
-                    </h1>
-                  </ScrollReveal>
-
-                  {/* Supporting Description */}
-                  <ScrollReveal delay={250} initiallyVisible>
-                    <p className="text-base sm:text-lg lg:text-xl text-salon-textSecondary/90 max-w-xl leading-relaxed font-sans">
-                      {t('home.heroSubtitle')}
-                    </p>
-                  </ScrollReveal>
-
-                  {/* Action CTAs */}
-                  <ScrollReveal delay={350} initiallyVisible>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-                      <Link to="/join">
-                        <Button
-                          variant="primary"
-                          size="xl"
-                          fullWidth
-                          rightIcon={ArrowRight}
-                          className="shadow-goldGlow hover:scale-[1.02] active:scale-[0.98] font-bold text-base min-h-[52px]"
-                        >
-                          {t('home.ctaJoin')}
-                        </Button>
-                      </Link>
-
-                      <a
-                        href="#services"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const el = document.getElementById('services');
-                          if (el) {
-                            const y = el.getBoundingClientRect().top + window.pageYOffset - 84;
-                            window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-                          }
-                        }}
-                      >
-                        <Button
-                          variant="outline"
-                          size="xl"
-                          fullWidth
-                          leftIcon={Scissors}
-                          className="border-white/20 bg-white/[0.04] hover:border-salon-gold/50 hover:bg-white/[0.08] text-base min-h-[52px]"
-                        >
-                          {t('home.heroExploreServices') || 'Explore Our Services'}
-                        </Button>
-                      </a>
                     </div>
-                  </ScrollReveal>
-
-                  {/* Subtle Trust & Experience Stats Strip */}
-                  <ScrollReveal delay={450} initiallyVisible>
-                    <div className="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg">
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
-                          {t('home.configuredServices')}
-                        </p>
-                        <p className="text-2xl font-bold text-salon-gold tabular-nums">
-                          {services.length}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
-                          {t('home.barbersOnDuty')}
-                        </p>
-                        <p className="text-2xl font-bold text-white tabular-nums">
-                          {barbers.length}
-                        </p>
-                      </div>
-
-                      <div className="col-span-2 sm:col-span-1 space-y-1">
-                        <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
-                          {t('home.syncStatus')}
-                        </p>
-                        <div className="flex items-center gap-2 pt-1">
-                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="text-sm font-semibold text-emerald-300">
-                            {t('connection.live')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </ScrollReveal>
+                  ) : null}
                 </div>
 
-                {/* RIGHT COLUMN: Static Luxury Salon Visual (5 cols on lg) */}
-                <div className="lg:col-span-5 relative flex items-center justify-center">
-                  <div className="relative w-full max-w-[480px] mx-auto aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-[#161514] shadow-2xl">
-                    <img
-                      src={SALON_IMAGES.hero}
-                      alt="Aura Salon Master Barbering Chair"
-                      className="w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.05]"
-                      loading="eager"
-                      decoding="async"
-                    />
+                {/* Editorial Master Headline */}
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-serif leading-[1.08]">
+                  <span className="block">{t('home.heroHeadlinePrimary')}</span>
+                  <span className="block text-gold-gradient mt-1">
+                    {t('home.heroHeadlineSecondary')}
+                  </span>
+                </h1>
 
-                    {/* Subtle bottom vignette gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+                {/* Supporting Description */}
+                <p className="text-base sm:text-lg lg:text-xl text-salon-textSecondary/95 max-w-xl leading-relaxed font-sans">
+                  {t('home.heroSubtitle')}
+                </p>
 
-                    {/* Static Experience Badge */}
-                    <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between p-4 rounded-2xl border border-white/15 bg-black/60 backdrop-blur-md">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-salon-gold/20 border border-salon-gold/40 flex items-center justify-center text-salon-gold shrink-0">
-                          <Crown className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-white tracking-wide">Master Styling Lounge</p>
-                          <p className="text-[11px] text-salon-textSecondary">Isha & Artisans • Established Quality</p>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-salon-gold px-2.5 py-1 rounded-full bg-salon-gold/10 border border-salon-gold/30 shrink-0">
-                        {t('common.today') || 'Today'}
+                {/* Action CTAs */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+                  <Link to="/join">
+                    <Button
+                      variant="primary"
+                      size="xl"
+                      fullWidth
+                      rightIcon={ArrowRight}
+                      className="shadow-goldGlow hover:scale-[1.02] active:scale-[0.98] font-bold text-base min-h-[52px]"
+                    >
+                      {t('home.ctaJoin')}
+                    </Button>
+                  </Link>
+
+                  <a
+                    href="#services"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const el = document.getElementById('services');
+                      if (el) {
+                        const y = el.getBoundingClientRect().top + window.pageYOffset - 84;
+                        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+                      }
+                    }}
+                  >
+                    <Button
+                      variant="outline"
+                      size="xl"
+                      fullWidth
+                      leftIcon={Scissors}
+                      className="border-white/25 bg-[#191817]/70 hover:border-salon-gold/60 hover:bg-[#191817]/90 text-white text-base min-h-[52px] backdrop-blur-sm"
+                    >
+                      {t('home.heroExploreServices')}
+                    </Button>
+                  </a>
+                </div>
+
+                {/* Subtle Trust & Experience Stats Strip */}
+                <div className="pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
+                      {t('home.configuredServices')}
+                    </p>
+                    <p className="text-2xl font-bold text-salon-gold tabular-nums">
+                      {services.length}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
+                      {t('home.barbersOnDuty')}
+                    </p>
+                    <p className="text-2xl font-bold text-white tabular-nums">
+                      {barbers.length}
+                    </p>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1 space-y-1">
+                    <p className="text-xs uppercase tracking-wider text-salon-textMuted font-medium">
+                      {t('home.syncStatus')}
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-sm font-semibold text-emerald-300">
+                        {t('connection.live')}
                       </span>
                     </div>
                   </div>
@@ -277,7 +236,7 @@ export function HomePage() {
             </div>
 
             {/* Scroll Indicator */}
-            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-1.5 text-xs font-medium text-salon-textMuted">
+            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-1.5 text-xs font-medium text-salon-textMuted pointer-events-none">
               <span className="tracking-widest uppercase text-[10px] text-salon-gold/80">Scroll to Explore</span>
               <ArrowDown className="h-3.5 w-3.5 text-salon-gold animate-bounce" />
             </div>

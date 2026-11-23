@@ -320,3 +320,47 @@ This file records every prompt used during the design, development, debugging, t
     - Captured high-resolution desktop and mobile screenshots of static hero, services management, barbers management, and add modals via Chrome DevTools Protocol.
 
 
+### Prompt 10 — Fix Owner Analytics and Simplify Homepage Hero Design
+- **Date:** 2026-11-23
+- **Stage:** Owner Analytics Bug Fix & Single-Background Hero Simplification
+- **Prompt Summary:**
+  > 1. Fix Owner Analytics Not Updating:
+  >    - Find the root cause why the statistics in the Owner Dashboard (`/admin`) are showing zero or failing to update with actual salon activity.
+  >    - Display database-backed numbers for Total Customers (today and overall), Customers Served (status DONE), Active Queue (waiting + in chair), Estimated Revenue (strictly from completed DONE entries), Service Popularity (count and revenue), and Stylist Performance.
+  >    - Date filtering: Today, Last 7 Days, Last 30 Days, All Time.
+  >    - Real-time updates: Automatically refresh when queue changes occur via Socket.IO, on tab switch, on window focus/visibility change, and on socket reconnect.
+  >    - Separate no-show and cancelled counts.
+  > 2. Redesign Homepage Hero Section:
+  >    - Replace split layout and right-side card with ONE normal, authentic salon photograph as the entire section's background (`background-size: cover; background-position: center`).
+  >    - Apply a subtle dark charcoal overlay so text is crisp and legible while keeping the salon atmosphere visible.
+  >    - Place text content cleanly on the left side:
+  >      - Eyebrow: "THE ART OF GROOMING"
+  >      - Main heading: "Your Style. Your Moment."
+  >      - Supporting text: "Experience premium grooming, expert styling and a little time dedicated entirely to you."
+  >      - Primary CTA: "Join the Queue" (`/join`)
+  >      - Secondary CTA: "Explore Our Services" (`#services`)
+  >    - Fully static, simple, clean and refined without 3D, canvas, WebGL, particle effects, parallax, split screen, or separate right-side image cards.
+  > 3. Testing & Verification:
+  >    - Run full test suite, build client, verify real E2E workflow, capture screenshots, and commit with message `fix: repair owner analytics and simplify salon homepage hero`.
+- **Outcome:** Succeeded:
+  - **Root Cause & Fix for Owner Analytics:**
+    - Root cause 1: Property naming mismatch between frontend `AdminPage.jsx` (`totalRegistrationsToday`, `completedToday`, `servicesCompletedToday`, `inChairCount`, `avgActualWaitMinutes`, `revenueTodayInr`, `revenueLast7DaysInr`, `customerMetrics.totalUniqueCustomers`) and backend `analyticsService.js` (`totalCustomersToday`, `completedCount`, `servingCount`, `avgWaitMinutes`, `todayRevenue`, `weeklyRevenue`, `today.totalAllTimeCustomers`), which caused numbers to evaluate to `0` or `undefined`.
+    - Root cause 2: `analyticsService.js` only filtered service selections for `7d`, `30d`, and `all` ranges, without computing range totals for registrations, completed tickets, or revenue.
+    - Root cause 3: Missing tab focus/visibility listener (`visibilitychange`) and socket reconnect handler (`socket.on('reconnect')`).
+    - Fix: Updated `server/src/services/analyticsService.js` with comprehensive range aggregations, computed services completed, separate no-show and cancelled counts, and complete alias parity across both naming conventions. Updated `client/src/pages/AdminPage.jsx` with safe fallback chains, tab switch re-fetch, `visibilitychange` listener, `reconnect` listener, and added a dedicated Queue Status Breakdown bar beneath KPI cards clearly distinguishing Completed, In Chair, Waiting, Called, No-Show, and Cancelled.
+  - **Simplified Authentic Photograph Homepage Hero:**
+    - Downloaded and verified authentic luxury barbershop interior photograph (`client/public/salon-hero-bg.jpg`).
+    - Converted `#hero` in `client/src/pages/HomePage.jsx` to full-bleed background (`bg-cover bg-center`) with dark charcoal gradient and black contrast overlays (`bg-gradient-to-r from-[#191817]/95 via-[#191817]/85 to-[#191817]/50` and `bg-black/35`).
+    - Styled left-aligned typography with eyebrow, master headline with gold gradient, supporting description, primary and secondary CTAs, and live trust stats strip. Removed split screen and right-side card completely.
+    - Updated `en.json` and `gu.json` with 100% key parity for all hero copy.
+  - **Automated Testing & Evidence:**
+    - `npm --prefix client run build`: built cleanly in 10.57s (`dist/assets/index-L6kMHCWU.js` 480 kB).
+    - `node --test server/src/*.test.js`: 73 / 73 tests passed in 1.89s with zero failures.
+    - `node scripts/e2e_full_workflow.js`: 18 / 18 end-to-end multi-device workflow checks passed 100%.
+    - Captured high-resolution Chrome DevTools Protocol screenshots:
+      - `screenshots/admin_overview_stats_desktop.png` (demonstrates live non-zero database KPIs: Total Customers 1, Customers Served 1, 100% completion rate, 2 services, ₹240 revenue, and status breakdown).
+      - `screenshots/home_hero_desktop_1280.png` (authentic salon photo full-background hero).
+      - `screenshots/home_hero_mobile_375.png` (flawless mobile responsive presentation).
+
+
+

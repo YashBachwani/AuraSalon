@@ -183,14 +183,36 @@ export function AdminPage() {
     fetchAnalytics({ silent: false, range: selectedRange });
   }, [fetchAnalytics, selectedRange]);
 
-  // Load services and barbers initially and on tab switch
+  // Load data on tab switch
   useEffect(() => {
-    if (activeTab === 'services') {
+    if (activeTab === 'stats') {
+      fetchAnalytics({ silent: true, range: selectedRange });
+    } else if (activeTab === 'services') {
       fetchAdminServices();
     } else if (activeTab === 'barbers') {
       fetchAdminBarbers();
     }
-  }, [activeTab, fetchAdminServices, fetchAdminBarbers]);
+  }, [activeTab, fetchAnalytics, fetchAdminServices, fetchAdminBarbers, selectedRange]);
+
+  // Tab visibility refresh: re-fetch immediately when user returns to this tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (activeTab === 'stats') {
+          fetchAnalytics({ silent: true, range: selectedRange });
+        } else if (activeTab === 'services') {
+          fetchAdminServices({ silent: true });
+        } else if (activeTab === 'barbers') {
+          fetchAdminBarbers({ silent: true });
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [activeTab, fetchAnalytics, fetchAdminServices, fetchAdminBarbers, selectedRange]);
 
   // Real-time synchronization via Socket.IO
   useEffect(() => {
@@ -230,12 +252,18 @@ export function AdminPage() {
       handleServicesUpdated();
       handleBarbersUpdated();
     });
+    socket.on('reconnect', () => {
+      handleRealtimeAnalytics();
+      handleServicesUpdated();
+      handleBarbersUpdated();
+    });
 
     return () => {
       events.forEach((evt) => socket.off(evt, handleRealtimeAnalytics));
       socket.off('services:updated', handleServicesUpdated);
       socket.off('barbers:updated', handleBarbersUpdated);
       socket.off('connect', handleRealtimeAnalytics);
+      socket.off('reconnect', handleRealtimeAnalytics);
     };
   }, [fetchAnalytics, fetchAdminServices, fetchAdminBarbers, refreshBootstrap]);
 
@@ -523,7 +551,9 @@ export function AdminPage() {
   ];
 
   const today = analytics?.todayOverview || {};
+  const rangeOverview = analytics?.rangeOverview || {};
   const revenue = analytics?.revenueOverview || {};
+  const customerMetrics = analytics?.customerMetrics || {};
   const queueStats = analytics?.queueAnalytics || {};
   const barberPerformance = analytics?.barberPerformance || [];
   const serviceStats = analytics?.serviceAnalytics?.services || [];
@@ -684,7 +714,9 @@ export function AdminPage() {
                     </div>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">
-                        {selectedRange === 'today' ? today.totalRegistrationsToday ?? 0 : queueStats.totalRegistrationsInRange ?? 0}
+                        {selectedRange === 'today'
+                          ? (today.totalRegistrationsToday ?? today.totalCustomersToday ?? 0)
+                          : (rangeOverview.totalRegistrationsInRange ?? queueStats.totalRegistrationsInRange ?? 0)}
                       </span>
                       <span className="text-[11px] text-[#A8A096]">
                         {selectedRange === 'today' ? 'today' : selectedRange}
@@ -692,7 +724,7 @@ export function AdminPage() {
                     </div>
                     <p className="mt-2 text-[11px] text-[#D9D0C2] flex items-center gap-1">
                       <UserCheck className="h-3 w-3 text-emerald-400" />
-                      <span>{t('admin.kpiUniqueCustomers', { count: analytics?.customerMetrics?.totalUniqueCustomers ?? 0 })}</span>
+                      <span>{t('admin.kpiUniqueCustomers', { count: customerMetrics.totalUniqueCustomers ?? today.totalAllTimeCustomers ?? 0 })}</span>
                     </p>
                   </Card>
 
@@ -706,14 +738,22 @@ export function AdminPage() {
                     </div>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-2xl sm:text-3xl font-extrabold text-emerald-400 tabular-nums">
-                        {selectedRange === 'today' ? today.completedToday ?? 0 : queueStats.completedInRange ?? 0}
+                        {selectedRange === 'today'
+                          ? (today.completedToday ?? today.completedCount ?? 0)
+                          : (rangeOverview.completedInRange ?? queueStats.completedInRange ?? 0)}
                       </span>
                       <span className="text-[11px] text-[#A8A096]">
-                        {t('admin.kpiCompletionRate')}: {selectedRange === 'today' ? today.completionRatePercent ?? 0 : queueStats.completionRatePercent ?? 0}%
+                        {t('admin.kpiCompletionRate')}: {selectedRange === 'today'
+                          ? (today.completionRatePercent ?? today.completionRate ?? 0)
+                          : (rangeOverview.completionRatePercent ?? queueStats.completionRatePercent ?? 0)}%
                       </span>
                     </div>
                     <p className="mt-2 text-[11px] text-[#A8A096]">
-                      Services: <strong className="text-white tabular-nums">{selectedRange === 'today' ? today.servicesCompletedToday ?? 0 : queueStats.servicesCompletedInRange ?? 0}</strong>
+                      Services: <strong className="text-white tabular-nums">
+                        {selectedRange === 'today'
+                          ? (today.servicesCompletedToday ?? today.completedCount ?? 0)
+                          : (rangeOverview.servicesCompletedInRange ?? queueStats.servicesCompletedInRange ?? 0)}
+                      </strong>
                     </p>
                   </Card>
 
@@ -730,11 +770,11 @@ export function AdminPage() {
                         {today.waitingCount ?? 0}
                       </span>
                       <span className="text-[11px] text-amber-400">
-                        + {today.inChairCount ?? 0} in chair
+                        + {today.inChairCount ?? today.servingCount ?? 0} in chair
                       </span>
                     </div>
                     <p className="mt-2 text-[11px] text-[#A8A096]">
-                      Avg Wait: <strong className="text-white tabular-nums">{queueStats.avgActualWaitMinutes ?? 0} mins</strong>
+                      Avg Wait: <strong className="text-white tabular-nums">{queueStats.avgActualWaitMinutes ?? queueStats.avgWaitMinutes ?? 0} mins</strong>
                     </p>
                   </Card>
 
@@ -742,19 +782,80 @@ export function AdminPage() {
                   <Card elevated className="p-4 sm:p-5 bg-[#292622]/90 border-white/5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-[#A8A096] uppercase tracking-wider">
-                        {t('admin.kpiRevenueToday')}
+                        {selectedRange === 'today' ? t('admin.kpiRevenueToday') : `${t('admin.kpiRevenueToday')} (${selectedRange})`}
                       </span>
                       <DollarSign className="h-4 w-4 text-[#C89B45]" />
                     </div>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-2xl sm:text-3xl font-extrabold text-[#C89B45] tabular-nums">
-                        {formatInr(selectedRange === 'today' ? revenue.revenueTodayInr ?? 0 : revenue.revenueInRangeInr ?? 0)}
+                        {formatInr(selectedRange === 'today'
+                          ? (revenue.revenueTodayInr ?? revenue.todayRevenue ?? 0)
+                          : (revenue.revenueInRangeInr ?? revenue.revenueInRange ?? 0))}
                       </span>
                     </div>
                     <p className="mt-2 text-[10px] text-[#A8A096] truncate">
-                      {t('admin.kpiWeeklyRevenue', { amount: formatInr(revenue.revenueLast7DaysInr ?? 0) })}
+                      {t('admin.kpiWeeklyRevenue', { amount: formatInr(revenue.revenueLast7DaysInr ?? revenue.weeklyRevenue ?? 0) })}
                     </p>
                   </Card>
+                </div>
+
+                {/* Queue Status Breakdown Strip (Separating Completed, In Chair, Waiting, Called, No-Show, Cancelled) */}
+                <div className="p-4 bg-[#292622]/80 border border-white/5 rounded-2xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <History className="h-4 w-4 text-[#C89B45]" />
+                      <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                        Queue Status Breakdown ({selectedRange === 'today' ? 'Today' : selectedRange.toUpperCase()})
+                      </h3>
+                    </div>
+                    <span className="text-[11px] text-[#A8A096]">
+                      Authoritative real-time ticket states from the database
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                    {/* Completed */}
+                    <div className="p-2.5 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
+                      <span className="text-[10px] text-emerald-400 font-semibold block uppercase">Completed</span>
+                      <span className="text-lg font-bold text-emerald-300 tabular-nums">
+                        {selectedRange === 'today' ? (today.completedToday ?? today.completedCount ?? 0) : (rangeOverview.completedInRange ?? 0)}
+                      </span>
+                    </div>
+                    {/* In Chair */}
+                    <div className="p-2.5 bg-amber-950/20 border border-amber-500/20 rounded-xl">
+                      <span className="text-[10px] text-amber-400 font-semibold block uppercase">In Chair</span>
+                      <span className="text-lg font-bold text-amber-300 tabular-nums">
+                        {today.inChairCount ?? today.servingCount ?? 0}
+                      </span>
+                    </div>
+                    {/* Waiting */}
+                    <div className="p-2.5 bg-blue-950/20 border border-blue-500/20 rounded-xl">
+                      <span className="text-[10px] text-blue-400 font-semibold block uppercase">Waiting</span>
+                      <span className="text-lg font-bold text-blue-300 tabular-nums">
+                        {today.waitingCount ?? 0}
+                      </span>
+                    </div>
+                    {/* Called */}
+                    <div className="p-2.5 bg-purple-950/20 border border-purple-500/20 rounded-xl">
+                      <span className="text-[10px] text-purple-400 font-semibold block uppercase">Called</span>
+                      <span className="text-lg font-bold text-purple-300 tabular-nums">
+                        {today.calledCount ?? 0}
+                      </span>
+                    </div>
+                    {/* No-Shows (Strictly separated) */}
+                    <div className="p-2.5 bg-orange-950/20 border border-orange-500/20 rounded-xl">
+                      <span className="text-[10px] text-orange-400 font-semibold block uppercase">No-Show</span>
+                      <span className="text-lg font-bold text-orange-300 tabular-nums">
+                        {selectedRange === 'today' ? (today.noShowCount ?? 0) : (rangeOverview.noShowInRange ?? 0)}
+                      </span>
+                    </div>
+                    {/* Cancelled (Strictly separated) */}
+                    <div className="p-2.5 bg-rose-950/20 border border-rose-500/20 rounded-xl">
+                      <span className="text-[10px] text-rose-400 font-semibold block uppercase">Cancelled</span>
+                      <span className="text-lg font-bold text-rose-300 tabular-nums">
+                        {selectedRange === 'today' ? (today.cancelledCount ?? 0) : (rangeOverview.cancelledInRange ?? 0)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Secondary Row: Service Popularity & Barber Performance */}
