@@ -157,11 +157,11 @@ export function ProtectedRoute({ allowedRoles = [], children }) {
   }
 
   // Barber Isolation Guard: if logged in as a barber, can only access own /barber/:name
-  if (user.role === 'barber' && params.name) {
-    const requestedBarber = String(params.name).toLowerCase();
-    const mySlug = String(user.slug || '').toLowerCase();
+  if (user.role === 'barber') {
+    const mySlug = String(user.slug || 'isha').toLowerCase();
     const myName = String(user.name || '').toLowerCase();
-    if (requestedBarber !== mySlug && requestedBarber !== myName) {
+    const requested = params.name ? String(params.name).toLowerCase() : '';
+    if (!requested || (requested !== mySlug && requested !== myName)) {
       return <Navigate to={`/barber/${mySlug}`} replace />;
     }
   }

@@ -130,8 +130,8 @@ export function AdminPage() {
   const recentActivity = analytics?.recentActivity || [];
   const dailyTrend = analytics?.dailyTrend || [];
 
-  const maxSelectedCount = Math.max(...serviceStats.map((s) => s.selectedCount), 1);
-  const maxTrendRegs = Math.max(...dailyTrend.map((d) => d.totalRegistrations), 1);
+  const maxSelectedCount = Math.max(1, ...(serviceStats.length ? serviceStats.map((s) => Number(s.selectedCount) || 0) : [1]));
+  const maxTrendRegs = Math.max(1, ...(dailyTrend.length ? dailyTrend.map((d) => Number(d.totalRegistrations) || 0) : [1]));
 
   return (
     <StaffLayout subtitle={t('admin.title')} maxWidth="max-w-7xl">

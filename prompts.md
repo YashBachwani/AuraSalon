@@ -232,3 +232,52 @@ This file records every prompt used during the design, development, debugging, t
     - `node scripts/e2e_full_workflow.js`: All 18 multi-device end-to-end queue synchronization checks passed.
     - Verified screenshots captured: `screenshots/home_hero_desktop_1280.png`, `screenshots/home_hero_mobile_375.png`, `screenshots/e2e_barber_isha_verified.png`, `screenshots/e2e_customer_status_verified.png`, `screenshots/e2e_reception_verified.png`, `screenshots/e2e_tv_display_verified.png`.
 
+
+### Prompt 8 — Complete Final Quality Assurance, Bug Fixing & Production Readiness
+- **Date:** 2026-11-23
+- **Stage:** Final Quality Audit & Production Stabilisation
+- **Prompt Summary:**
+  > Act as a Senior Full-Stack Engineer, QA Engineer, UI/UX Specialist, Security Reviewer, and Performance Engineer:
+  > Perform a complete final quality audit of the ENTIRE project across 13 phases. Identify, fix, test, and verify all remaining bugs, minor issues, inconsistencies, broken interactions, and performance problems without breaking existing architecture or visual identity.
+  > Audit checklist:
+  > 1. Complete project audit: verify frontend and backend architecture, routes, APIs, DB, auth/RBAC, Socket.IO, tests, docs.
+  > 2. Frontend bug fixing across all 9 screens: dead links, broken buttons, missing loading/error/empty states, translation keys, state persistence.
+  > 3. Queue management logic: FCFS, max 3 services, Isha vs Any Barber, 10-minute NO_SHOW rule boundary, 30-min online closing cutoff, walk-in availability, concurrency locks.
+  > 4. Role-based authentication: Customer, Barber (Isha), Reception, Owner; session persistence on refresh, RBAC, route guards, URL manipulation prevention.
+  > 5. Isha barber identity audit: name Isha everywhere, 0 active occurrences of Ravi.
+  > 6. Real-time & Socket.IO audit: multi-device sync, listener cleanup on unmount, reconnect handling.
+  > 7. Owner dashboard & analytics: dynamic database metrics, defensive Math.max handling, filters.
+  > 8. Three.js homepage & UI polish: WebGL fallback, reduced-motion, memory cleanup, clean console.
+  > 9. Mobile & responsive testing: test viewports 360x800, 390x844, 430x932, 768x1024, 1024x768, 1366x768, 1920x1080; zero horizontal overflow.
+  > 10. Backend, database & security: API validation, error handling, DB transactions, foreign keys, secure environment variables.
+  > 11. Performance and code quality: zero dead console.logs, clean bundle splitting.
+  > 12. Complete testing: run full suite, add 8-test boundary test suite (`final_qa_stabilisation.test.js`), verify 60/60 tests pass.
+  > 13. Final cleanup and deployment readiness: commit with message `chore: complete aura salon final qa and bug fixes`.
+- **Outcome:** Succeeded:
+  - **Audit & Bug Fixing:**
+    - Resolved missing translation keys: added `common.errorTitle` and `common.errorDescription` to `client/src/locales/en.json` and `client/src/locales/gu.json` maintaining 100% 1:1 key parity (372 keys each).
+    - Fixed Barber Route Isolation in `client/src/context/AuthContext.jsx`: ProtectedRoute now correctly redirects barbers accessing `/barber` without a name parameter to their own chair (`/barber/${mySlug || 'isha'}`).
+    - Enhanced `client/src/pages/BarberPage.jsx`: imported `useAuth` to resolve fallback active barber parameter safely from logged-in user context.
+    - Protected `client/src/pages/AdminPage.jsx`: guarded `Math.max` calls against empty/undefined arrays with fallback defaults.
+    - Guarded `client/src/pages/DisplayPage.jsx`: added `flashTimeoutRef` and proper unmount cleanup for the 10-second `justCalledId` banner timeout.
+  - **Comprehensive Boundary & QA Test Suite:**
+    - Created `server/src/final_qa_stabilisation.test.js` covering 8 critical boundary test cases:
+      1. Invalid phone number rejection (HTTP 400).
+      2. Max 3 services validation (HTTP 400).
+      3. Barber ON_BREAK booking rejection (HTTP 409).
+      4. Concurrency safety: 5 simultaneous joins with the same phone produce only 1 active ticket (1x 201, 4x 409).
+      5. Strict 10-minute NO_SHOW rule boundary: fails at 0 mins (409 NO_SHOW_GRACE_ACTIVE), succeeds after 11 mins (200 OK) restoring barber to AVAILABLE.
+      6. Illegal state transition rejection: completing a WAITING customer returns 409.
+      7. Barber chair isolation: Barber Amit cannot complete service assigned to Barber Isha (returns 403 FORBIDDEN_BARBER_ACCESS).
+      8. Customer ticket privacy: Customer A cannot view Customer B's ticket (returns 403 UNAUTHORIZED_TICKET_ACCESS).
+  - **Responsive Testing Across All 7 Viewports:**
+    - Verified all target viewports: 360x800, 390x844, 430x932, 768x1024, 1024x768, 1366x768, and 1920x1080.
+    - Captured 14 responsive proof screenshots in `screenshots/responsive/`. Zero horizontal overflow (`overflow-x: hidden`).
+  - **Zero Active References to Ravi:**
+    - Confirmed 0 active occurrences across the entire codebase.
+  - **Test Suite Results:**
+    - Full backend test suite: 60 / 60 tests passed (100% pass rate).
+    - Client build: built cleanly in 3.21s with zero errors.
+    - Client route & dictionary check: passed (372 keys each).
+    - End-to-end multi-device workflow verification: 18 / 18 checks passed.
+

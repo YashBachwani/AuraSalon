@@ -48,6 +48,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "close": "Close",
+    "errorTitle": "Error",
+    "errorDescription": "An unexpected error occurred. Please try again.",
     "hoursLabel": "Salon Hours",
     "today": "Today",
     "fullscreen": "Fullscreen",

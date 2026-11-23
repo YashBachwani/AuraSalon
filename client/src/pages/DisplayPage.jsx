@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Clock, Scissors, Sparkles } from 'lucide-react';
 import { DisplayLayout } from '../layouts/DisplayLayout.jsx';
 import { Card, CardContent } from '../components/ui/Card.jsx';
@@ -18,6 +18,7 @@ export function DisplayPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [justCalledId, setJustCalledId] = useState(null);
+  const flashTimeoutRef = useRef(null);
 
   const fetchDisplay = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
@@ -48,7 +49,8 @@ export function DisplayPage() {
     const handleCustomerCalled = (payload) => {
       if (payload?.entryId) {
         setJustCalledId(payload.entryId);
-        setTimeout(() => setJustCalledId(null), 10000); // 10s flash
+        if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+        flashTimeoutRef.current = setTimeout(() => setJustCalledId(null), 10000); // 10s flash
       }
       fetchDisplay({ silent: true });
     };
@@ -83,6 +85,7 @@ export function DisplayPage() {
       socket.off('barbers:updated', handleUpdate);
       socket.off('connect', handleUpdate);
       document.removeEventListener('visibilitychange', handleVisibility);
+      if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
     };
   }, [fetchDisplay, refreshBootstrap]);
 

@@ -21,12 +21,14 @@ import { Button } from '../components/ui/Button.jsx';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/StateViews.jsx';
 import { useConnection } from '../context/ConnectionContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 import { getSocket } from '../services/socket.js';
 import { formatInr, getInitials } from '../utils/formatters.js';
 
 export function BarberPage() {
   const { name } = useParams();
+  const { user } = useAuth();
   const { bootstrap, refreshBootstrap } = useConnection();
   const { t, getLocalizedName } = useLanguage();
 
@@ -46,7 +48,7 @@ export function BarberPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const activeBarberParam = String(name || 'isha').trim().toLowerCase();
+  const activeBarberParam = String(name || (user?.role === 'barber' ? user.slug : null) || 'isha').trim().toLowerCase();
 
   const fetchBarberData = useCallback(
     async ({ silent = false } = {}) => {

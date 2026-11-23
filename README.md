@@ -56,6 +56,7 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
   - Home Page Navbar & Services Desktop (1280px): `screenshots/home_navbar_services_1280.png`
   - Home Page Navbar Mobile (375px): `screenshots/home_navbar_mobile_375.png`
   - Join Queue Page Mobile (375px): `screenshots/join_mobile_375.png`
+- **Responsive Testing Across 7 Viewports:** Verified at 360x800, 390x844, 430x932, 768x1024, 1024x768, 1366x768, and 1920x1080 with zero horizontal overflow (`screenshots/responsive/`).
 - **End-to-End Live Queue Verified Screenshots:**
   - Reception Dashboard Live Sync: `screenshots/e2e_reception_verified.png`
   - Customer Live Status Tracker (`/status/:id`): `screenshots/e2e_customer_status_verified.png`
