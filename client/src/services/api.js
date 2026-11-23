@@ -141,7 +141,37 @@ export const api = {
       body: { availability },
     }),
 
-  // Owner Analytics
+  // Owner Analytics & Management
   getOwnerAnalytics: (range = 'today') =>
     apiRequest(`/api/admin/analytics?range=${range}`),
+  getAdminServices: () => apiRequest('/api/admin/services'),
+  createAdminService: (data) =>
+    apiRequest('/api/admin/services', {
+      method: 'POST',
+      body: data,
+    }),
+  updateAdminService: (id, data) =>
+    apiRequest(`/api/admin/services/${id}`, {
+      method: 'PUT',
+      body: data,
+    }),
+  deleteAdminService: (id) =>
+    apiRequest(`/api/admin/services/${id}`, {
+      method: 'DELETE',
+    }),
+  getAdminBarbers: () => apiRequest('/api/admin/barbers'),
+  createAdminBarber: (data) =>
+    apiRequest('/api/admin/barbers', {
+      method: 'POST',
+      body: data,
+    }),
+  updateAdminBarber: (id, data) =>
+    apiRequest(`/api/admin/barbers/${id}`, {
+      method: 'PUT',
+      body: data,
+    }),
+  deleteAdminBarber: (id) =>
+    apiRequest(`/api/admin/barbers/${id}`, {
+      method: 'DELETE',
+    }),
 };

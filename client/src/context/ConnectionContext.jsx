@@ -67,11 +67,20 @@ export function ConnectionProvider({ children }) {
       handleConnect();
     }
 
+    const handleDataUpdated = () => {
+      refreshBootstrap({ silent: true });
+    };
+
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
     socket.on('connect_error', handleConnectError);
     socket.io.on('reconnect_attempt', handleReconnectAttempt);
     socket.io.on('reconnect', handleConnect);
+
+    socket.on('services:updated', handleDataUpdated);
+    socket.on('barbers:updated', handleDataUpdated);
+    socket.on('bootstrap:updated', handleDataUpdated);
+    socket.on('salon:settings-updated', handleDataUpdated);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -87,6 +96,11 @@ export function ConnectionProvider({ children }) {
       socket.off('connect_error', handleConnectError);
       socket.io.off('reconnect_attempt', handleReconnectAttempt);
       socket.io.off('reconnect', handleConnect);
+
+      socket.off('services:updated', handleDataUpdated);
+      socket.off('barbers:updated', handleDataUpdated);
+      socket.off('bootstrap:updated', handleDataUpdated);
+      socket.off('salon:settings-updated', handleDataUpdated);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [refreshBootstrap]);

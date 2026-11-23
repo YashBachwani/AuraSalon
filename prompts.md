@@ -281,3 +281,42 @@ This file records every prompt used during the design, development, debugging, t
     - Client route & dictionary check: passed (372 keys each).
     - End-to-end multi-device workflow verification: 18 / 18 checks passed.
 
+
+### Prompt 9 — Static Premium Homepage Hero & Owner Management for Services and Barbers
+- **Date:** 2026-11-23
+- **Stage:** Static Hero Redesign & Owner Services & Barbers Management
+- **Prompt Summary:**
+  > Implement the following changes on the existing Aura Salon project while preserving all currently working functionality:
+  > 1. Redesign Homepage Hero Section: Convert current hero into a clean, static, elegant, luxury salon landing section. Remove Three.js, React Three Fiber, 3D models, WebGL scenes, and 3D-specific loading dependencies. Left: Eyebrow "THE ART OF GROOMING", headline "Your Style. Your Moment.", description, Primary CTA "Join the Queue" (`/join`), Secondary CTA "Explore Our Services" (`#services`). Right: High-quality realistic salon composition (`SALON_IMAGES.hero`), refined natural lighting, brand palette (`#191817`, `#292622`, `#C89B45`, `#E8C982`, `#F5EFE4`, `#D9D0C2`, `#9B7650`). Static layout without scroll-driven movement.
+  > 2. Owner Service Management Control: Dedicated Manage Services tab in Owner Dashboard (`/admin`). View all services (name EN/GU, description, duration, price, active status, usage count). Add service modal, Edit service modal, Delete/Deactivate service (safe soft-deactivation if referenced in past queue entries).
+  > 3. Owner Barber Management Control: Dedicated Manage Barbers tab in Owner Dashboard (`/admin`). View roster (name, slug, specialty, phone, avatar color, PIN, duty status, active customer, completed sessions). Add stylist modal, Edit stylist modal, Delete/Deactivate stylist (rejects deletion if customer active in chair `BARBER_HAS_ACTIVE_CUSTOMER`, soft-deactivates if past records exist, preserves Isha identity).
+  > 4. Database & Backend Integration: Endpoints under `/api/admin` with strict RBAC (`requireAuth(['owner'])`):
+     - `GET /api/admin/services`, `POST /api/admin/services`, `PUT /api/admin/services/:id`, `DELETE /api/admin/services/:id`
+     - `GET /api/admin/barbers`, `POST /api/admin/barbers`, `PUT /api/admin/barbers/:id`, `DELETE /api/admin/barbers/:id`
+  > 5. Real-Time Synchronization: Broadcast `services:updated`, `barbers:updated`, `bootstrap:updated` on mutations to update all screens without page reload.
+  > 6. Automated Testing & Verification: Add comprehensive test suite (`admin_management.test.js`), verify build, update documentation, and commit with message `feat: add static premium hero and owner service-barber management`.
+- **Outcome:** Succeeded:
+  - **Static Hero Redesign & Three.js Removal:**
+    - Replaced 3D hero with static luxury composition in `client/src/pages/HomePage.jsx`.
+    - Removed `three` package from `client/package.json` and deleted `HeroSalon3D.jsx`. Client bundle size decreased from 987 kB to 478 kB with instant rendering.
+    - Added high-resolution local vector artwork `salon-hero.svg` with golden architectural arches and vintage master barbering chair.
+  - **Database & Schema Enhancements:**
+    - Updated `server/src/db/schema.js`: added `description_en` and `description_gu` columns to `services`, and `phone` and `pin` columns to `barbers` with idempotent SQLite migrations.
+    - Updated `server/src/services/authService.js` to support custom per-barber PINs and reject deactivated barbers (`BARBER_INACTIVE`).
+  - **Owner Management REST APIs (`server/src/routes/admin.js`):**
+    - Built complete CRUD endpoints for Services & Barbers with strict owner authorization guards, payload validation, slug uniqueness checks, usage counting, and active chair safeguards.
+    - Historical queue protection: referenced services and barbers are soft-deactivated to preserve past appointments and receipts without database foreign-key conflicts.
+  - **Owner Management Dashboard UI (`client/src/pages/AdminPage.jsx`):**
+    - Built comprehensive **Manage Services** tab with cards, live Active/Inactive quick toggles, filters, Add Service modal, Edit Service modal, and Delete confirmation dialog with usage warnings.
+    - Built comprehensive **Manage Barbers** tab with roster cards, chair IDs, live duty toggles, active customer indicators, avatar color swatches, Add Stylist modal, Edit Stylist modal, and active-customer deletion blockers.
+  - **Real-Time Multi-Device Sync:**
+    - Connected `ConnectionContext.jsx` to listen for `services:updated` and `barbers:updated` and trigger immediate bootstrap refresh for all connected screens.
+  - **100% 1:1 Translation Key Parity:**
+    - Added all management copy across `en.json` and `gu.json` (422 keys each, verified by `scripts/audit_translations.js`).
+  - **Testing & Verification:**
+    - Built and passed 13-test automated test suite `server/src/admin_management.test.js`.
+    - All 73 / 73 server tests passed across the 7 backend test suites.
+    - All 18 / 18 end-to-end workflow verification checks passed (`scripts/e2e_full_workflow.js`).
+    - Captured high-resolution desktop and mobile screenshots of static hero, services management, barbers management, and add modals via Chrome DevTools Protocol.
+
+

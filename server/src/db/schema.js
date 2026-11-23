@@ -16,6 +16,8 @@ const SCHEMA_STATEMENTS = [
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name_en TEXT NOT NULL,
     name_gu TEXT NOT NULL,
+    description_en TEXT NULL DEFAULT '',
+    description_gu TEXT NULL DEFAULT '',
     duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0),
     price_inr INTEGER NOT NULL CHECK (price_inr >= 0),
     is_active INTEGER NOT NULL DEFAULT 1,
@@ -27,6 +29,8 @@ const SCHEMA_STATEMENTS = [
     name TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     specialty TEXT NOT NULL DEFAULT '',
+    phone TEXT NULL DEFAULT '',
+    pin TEXT NULL DEFAULT NULL,
     avatar_color TEXT NOT NULL DEFAULT '#D4A017',
     availability TEXT NOT NULL DEFAULT 'AVAILABLE'
       CHECK (availability IN ('AVAILABLE', 'BUSY', 'ON_BREAK', 'OFF_DUTY')),
@@ -67,4 +71,18 @@ export async function initializeSchema(client) {
   for (const sql of SCHEMA_STATEMENTS) {
     await client.execute(sql);
   }
+
+  // Safe idempotent column additions for existing SQLite databases
+  try {
+    await client.execute('ALTER TABLE services ADD COLUMN description_en TEXT NULL DEFAULT ""');
+  } catch {}
+  try {
+    await client.execute('ALTER TABLE services ADD COLUMN description_gu TEXT NULL DEFAULT ""');
+  } catch {}
+  try {
+    await client.execute('ALTER TABLE barbers ADD COLUMN phone TEXT NULL DEFAULT ""');
+  } catch {}
+  try {
+    await client.execute('ALTER TABLE barbers ADD COLUMN pin TEXT NULL DEFAULT NULL');
+  } catch {}
 }

@@ -31,20 +31,26 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 - **Reception Dashboard (10-inch Tablet Landscape):** Unified online + walk-in FCFS queue, live barber chair cards, atomic `Call Next` respecting barber preferences, `No-show` (10-min rule), `Cancel`, search, and amber highlighting for waits over 60 minutes.
 - **Barber Mobile View:** Focused interface with large `START` and `DONE` buttons, live service timer, `On Break / Available` toggle, and next-customer preview.
 - **Waiting Area TV Display:** High-contrast 5-metre-readable display showing active barber tokens, gold call-out animation with optional chime, and the next 5 upcoming tokens.
-- **Owner Management Dashboard:** Manage services (EN/GU names, durations, INR prices, active toggles), barbers (duty & availability), opening/closing hours with automatic 30-minute online-join cutoff, and Today's Statistics.
-- **Cinematic Three.js Hero Experience:** Procedural WebGL salon composition featuring a master barber chair with realistic tufted leather and gold hardware, floating styling shears, styling comb, gold pedestal glow, and atmospheric starlight particles with smooth mouse parallax and scroll responsiveness.
+- **Owner Management Dashboard:** Full management controls for services (view, add, update, and soft-deactivate/delete with bilingual names, durations, INR pricing, and historical ticket protection), barbers (roster management, slug generation, contact phone, avatar accent colors, security PINs, duty toggles, active customer safeguards, and soft-deactivation for past sessions), salon operating hours with 30-minute online-join cutoff, and live daily statistics & revenue analytics.
+- **Static Luxury Homepage Hero:** Elegant static luxury salon landing section with bespoke editorial typography, dual CTAs ("Join the Queue" and "Explore Services"), live queue snapshot (configured services, on-duty barbers, real-time sync), and high-resolution master barbering lounge composition. Zero Three.js/WebGL overhead, lightweight bundle (478 kB), and instantaneous load performance.
 - **Bilingual Support:** Instant English & Gujarati toggle across all 7 screens without losing state.
 
 ## Technology Stack
-- **Frontend:** React, Vite, Three.js (WebGL 3D Hero Composition), Tailwind CSS, React Router, Lucide React, Socket.IO Client
+- **Frontend:** React, Vite, Tailwind CSS, React Router, Lucide React, Socket.IO Client
 - **Backend:** Node.js, Express.js, Socket.IO
 - **Database:** Single SQLite / libSQL engine via `@libsql/client` (`file:./data/salon.db` locally, `:memory:` in automated tests, Turso free tier `libsql://...` or local SQLite in production)
 - **Hosting:** Vercel (Frontend), Render / Railway (Backend)
 
 ## Screenshots
-- **Cinematic Three.js Hero Screenshots:**
-  - Redesigned Hero Desktop (1280px): `screenshots/home_hero_desktop_1280.png`
-  - Redesigned Hero Mobile (375px): `screenshots/home_hero_mobile_375.png`
+- **Static Luxury Hero Screenshots:**
+  - Static Hero Desktop (1280px): `screenshots/home_hero_desktop_1280.png`
+  - Static Hero Mobile (375px): `screenshots/home_hero_mobile_375.png`
+- **Owner Management & Administration Screenshots:**
+  - Owner Analytics & Statistics Tab (`/admin`): `screenshots/admin_overview_stats_desktop.png`
+  - Owner Services Management Tab (`/admin`): `screenshots/admin_manage_services_desktop.png`
+  - Add New Service Modal (`/admin`): `screenshots/admin_add_service_modal.png`
+  - Owner Barbers Management Tab (`/admin`): `screenshots/admin_manage_barbers_desktop.png`
+  - Add New Stylist Modal (`/admin`): `screenshots/admin_add_barber_modal.png`
 - **Stage 3 Role-Based Demo Login Screenshots:**
   - Role-Based Demo Login Desktop (1280px): `screenshots/login_desktop_1280.png`
   - Role-Based Demo Login Mobile (375px): `screenshots/login_mobile_375.png`
@@ -86,6 +92,14 @@ Walk-in salon customers frequently face unpredictable wait times, crowded waitin
 
 ### Owner Analytics & Administration (`/api/admin`)
 - `GET /api/admin/analytics?range=today|7d|30d|all` — Authenticated Owner-only analytics endpoint returning authoritative KPIs (`todayOverview`), revenue breakdown (`revenueOverview`), wait & service timings (`queueAnalytics`), per-barber metrics (`barberPerformance`), service popularity distribution (`serviceAnalytics`), 7-day daily trend (`dailyTrend`), and recent live queue activity (`recentActivity`).
+- `GET /api/admin/services` — Owner endpoint returning all salon services with usage booking counts.
+- `POST /api/admin/services` — Owner endpoint to create a new grooming service with validation (names, prices, durations) and live broadcast (`services:updated`).
+- `PUT /api/admin/services/:id` — Owner endpoint to update service attributes and active status.
+- `DELETE /api/admin/services/:id` — Owner endpoint to safely delete or soft-deactivate services (protects historical queue records from deletion).
+- `GET /api/admin/barbers` — Owner endpoint returning all stylists with active customer in-chair status and completed count.
+- `POST /api/admin/barbers` — Owner endpoint to add a new stylist with sanitized unique slug, specialty, phone, avatar color, and PIN.
+- `PUT /api/admin/barbers/:id` — Owner endpoint to update barber attributes, PIN, and duty status.
+- `DELETE /api/admin/barbers/:id` — Owner endpoint to delete or deactivate stylists (safely prevents deletion if an active customer is in chair, and soft-deactivates if historical sessions exist).
 
 ## Project Structure
 ```text

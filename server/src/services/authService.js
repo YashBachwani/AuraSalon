@@ -123,7 +123,7 @@ export async function authenticateBarber(db, { barberId, pin }) {
   }
 
   const barberRes = await db.execute({
-    sql: 'SELECT id, name, slug, specialty, avatar_color, availability, is_on_duty FROM barbers WHERE id = ?',
+    sql: 'SELECT id, name, slug, specialty, avatar_color, availability, is_on_duty, pin FROM barbers WHERE id = ?',
     args: [bId],
   });
 
@@ -132,12 +132,23 @@ export async function authenticateBarber(db, { barberId, pin }) {
   }
 
   const barber = barberRes.rows[0];
+
+  if (!Boolean(barber.is_on_duty)) {
+    throw new AuthError(`${barber.name} is currently inactive and cannot log in.`, {
+      status: 403,
+      code: 'BARBER_INACTIVE',
+    });
+  }
+
   const providedPin = String(pin || '').trim();
   const validPins = [
     String(env.barberPin || '1234'),
     String(env.staffPin || '1234'),
     `${barber.slug}123`,
   ];
+  if (barber.pin) {
+    validPins.push(String(barber.pin).trim());
+  }
 
   if (!validPins.includes(providedPin)) {
     throw new AuthError(`Invalid PIN for ${barber.name}. Demo PIN is 1234`, {
