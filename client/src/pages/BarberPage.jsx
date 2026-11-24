@@ -29,7 +29,7 @@ import { formatInr, getInitials } from '../utils/formatters.js';
 export function BarberPage() {
   const { name } = useParams();
   const { user } = useAuth();
-  const { bootstrap, refreshBootstrap } = useConnection();
+  const { bootstrap, refreshBootstrap, socketStatus } = useConnection();
   const { t, getLocalizedName } = useLanguage();
 
   const [barberQueue, setBarberQueue] = useState(null);
@@ -74,6 +74,15 @@ export function BarberPage() {
   useEffect(() => {
     fetchBarberData();
   }, [fetchBarberData]);
+
+  // Fallback periodic refresh for Barber chair when socket is offline / serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+    const interval = setInterval(() => {
+      fetchBarberData({ silent: true });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [socketStatus, fetchBarberData]);
 
   // Socket.IO sync
   useEffect(() => {

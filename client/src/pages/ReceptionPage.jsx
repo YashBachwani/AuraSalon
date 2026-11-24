@@ -30,7 +30,7 @@ import { getSocket } from '../services/socket.js';
 import { formatInr, formatTime12, getInitials, maskPhone } from '../utils/formatters.js';
 
 export function ReceptionPage() {
-  const { bootstrap, refreshBootstrap } = useConnection();
+  const { bootstrap, refreshBootstrap, socketStatus } = useConnection();
   const { t, getLocalizedName } = useLanguage();
 
   const [queueData, setQueueData] = useState(null);
@@ -81,6 +81,15 @@ export function ReceptionPage() {
   useEffect(() => {
     fetchQueue();
   }, [fetchQueue]);
+
+  // Fallback periodic refresh for Reception when socket is offline / serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+    const interval = setInterval(() => {
+      fetchQueue({ silent: true });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [socketStatus, fetchQueue]);
 
   // Socket.IO event listener
   useEffect(() => {

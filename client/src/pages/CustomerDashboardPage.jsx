@@ -18,6 +18,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { Badge, QueueStatusBadge } from '../components/ui/Badge.jsx';
 import { LoadingState } from '../components/ui/StateViews.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useConnection } from '../context/ConnectionContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { api } from '../services/api.js';
 import { getSocket } from '../services/socket.js';
@@ -25,6 +26,7 @@ import { formatInr, maskPhone } from '../utils/formatters.js';
 
 export function CustomerDashboardPage() {
   const { user, logout } = useAuth();
+  const { socketStatus } = useConnection();
   const { t, getLocalizedName } = useLanguage();
   const navigate = useNavigate();
 
@@ -48,6 +50,15 @@ export function CustomerDashboardPage() {
   useEffect(() => {
     fetchDashboard();
   }, [fetchDashboard]);
+
+  // Fallback periodic refresh for customer dashboard when socket is offline / serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+    const interval = setInterval(() => {
+      fetchDashboard({ silent: true });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [socketStatus, fetchDashboard]);
 
   // Real-time synchronization
   useEffect(() => {

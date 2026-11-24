@@ -14,6 +14,11 @@ function normalizeDatabaseUrl(rawUrl) {
   }
 
   if (rawUrl.startsWith('file:')) {
+    if (process.env.VERCEL) {
+      // In serverless environment, local repo directories are read-only; use /tmp for ephemeral file DB fallback
+      return 'file:/tmp/salon.db';
+    }
+
     const filePart = rawUrl.slice('file:'.length);
     const resolvedPath = path.isAbsolute(filePart)
       ? filePart

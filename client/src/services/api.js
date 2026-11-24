@@ -1,4 +1,11 @@
-export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/+$/, '');
+// In production on Vercel or same-origin deployment, use relative '' to hit /api directly on the same domain.
+// In local development or when VITE_API_URL is explicitly set, use VITE_API_URL.
+const envApiUrl = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = (
+  envApiUrl !== undefined
+    ? envApiUrl
+    : (import.meta.env.PROD ? '' : 'http://localhost:4000')
+).replace(/\/+$/, '');
 
 const TOKEN_KEY = 'aura_auth_token';
 

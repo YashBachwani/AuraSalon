@@ -35,6 +35,17 @@ export function ConnectionProvider({ children }) {
     refreshBootstrap();
   }, [refreshBootstrap]);
 
+  // Resilient background polling fallback when socket is disconnected or running on serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+
+    const interval = setInterval(() => {
+      refreshBootstrap({ silent: true });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [socketStatus, refreshBootstrap]);
+
   useEffect(() => {
     const socket = getSocket();
 

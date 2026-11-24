@@ -11,7 +11,7 @@ import { getSocket } from '../services/socket.js';
 import { getInitials } from '../utils/formatters.js';
 
 export function DisplayPage() {
-  const { refreshBootstrap } = useConnection();
+  const { refreshBootstrap, socketStatus } = useConnection();
   const { t, language } = useLanguage();
 
   const [displayData, setDisplayData] = useState(null);
@@ -36,6 +36,15 @@ export function DisplayPage() {
   useEffect(() => {
     fetchDisplay();
   }, [fetchDisplay]);
+
+  // Fallback periodic refresh for TV display when socket is offline / serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+    const interval = setInterval(() => {
+      fetchDisplay({ silent: true });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [socketStatus, fetchDisplay]);
 
   // Socket.IO sync
   useEffect(() => {

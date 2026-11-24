@@ -68,6 +68,15 @@ export function MyStatusPage() {
     fetchEntry();
   }, [fetchEntry]);
 
+  // Fallback periodic refresh for active customer ticket when socket is offline / serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+    const interval = setInterval(() => {
+      fetchEntry({ silent: true });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [socketStatus, fetchEntry]);
+
   // Socket.IO Real-time synchronization & mobile visibility handling
   useEffect(() => {
     const socket = getSocket();

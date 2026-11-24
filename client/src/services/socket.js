@@ -5,7 +5,12 @@ let socketInstance = null;
 
 export function getSocket() {
   if (!socketInstance) {
-    socketInstance = io(API_BASE_URL, {
+    const targetUrl =
+      import.meta.env.VITE_SOCKET_URL ||
+      API_BASE_URL ||
+      (typeof window !== 'undefined' ? window.location.origin : '');
+
+    socketInstance = io(targetUrl, {
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: Infinity,

@@ -52,7 +52,7 @@ const COLOR_SWATCHES = [
 ];
 
 export function AdminPage() {
-  const { bootstrap, refreshBootstrap } = useConnection();
+  const { bootstrap, refreshBootstrap, socketStatus } = useConnection();
   const { t, getLocalizedName } = useLanguage();
 
   const [activeTab, setActiveTab] = useState('stats');
@@ -182,6 +182,17 @@ export function AdminPage() {
   useEffect(() => {
     fetchAnalytics({ silent: false, range: selectedRange });
   }, [fetchAnalytics, selectedRange]);
+
+  // Fallback periodic refresh for owner analytics when socket is offline / serverless
+  useEffect(() => {
+    if (socketStatus === 'live') return;
+    const interval = setInterval(() => {
+      if (activeTab === 'stats') {
+        fetchAnalytics({ silent: true, range: selectedRange });
+      }
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [socketStatus, activeTab, fetchAnalytics, selectedRange]);
 
   // Load data on tab switch
   useEffect(() => {

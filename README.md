@@ -181,6 +181,76 @@ npm --prefix client run build
 node client/test_routes.js
 ```
 
-## Deployment Details
-Full step-by-step deployment instructions for Vercel, Render/Railway, and SQLite / Turso libSQL (free tier) are documented in [`AGENTS.md`](AGENTS.md) and will be verified in Stage 10.
+## Vercel Production Deployment Guide
+
+Aura Salon is configured for **Single-Project Vercel Deployment** from your GitHub repository using Vercel's official **Multiple Services** architecture (`vercel.json`).
+
+### 1. Architecture Overview
+- **Vercel Project:** 1 project connected to your GitHub repository.
+- **Client Service (`client`):**
+  - Root: `client`
+  - Framework: `vite`
+  - Output: `client/dist`
+  - SPA Rewrites: All non-API routes (`/(.*)`) rewrite to `/index.html`. Direct URL refreshes on `/reception`, `/admin`, `/status/:id` work out of the box.
+- **Server Service (`server`):**
+  - Root: `server`
+  - Framework: `express` (backed by Vercel Functions with Fluid Compute)
+  - Entrypoints: `server/src/index.js` (main) and `server/api/index.js` (serverless handler)
+  - Public API Route: Routed from `/api/(.*)` directly to the Express server.
+  - Database: Connects to free Turso cloud libSQL (`libsql://...`) via `@libsql/client` over stateless HTTPS.
+- **Service Bindings:** None required. The frontend communicates with the backend via standard public API routing (`/api/*`).
+
+### 2. Step-by-Step Vercel Deployment
+
+#### Step A — Setup Persistent Database (Turso Free Tier)
+1. Install Turso CLI or log in at [turso.tech](https://turso.tech):
+   ```bash
+   turso db create aura-salon
+   turso db show aura-salon --url
+   turso db tokens create aura-salon
+   ```
+2. Note your database URL (`libsql://aura-salon-<username>.turso.io`) and auth token.
+
+#### Step B — Connect Repository to Vercel
+1. Go to [vercel.com](https://vercel.com) and click **Add New... > Project**.
+2. Select your `salon-queue` (or `salon`) GitHub repository.
+3. Vercel automatically detects `vercel.json` at the root and configures the `client` and `server` services.
+
+#### Step C — Add Environment Variables in Vercel
+In the Vercel project settings (**Settings > Environment Variables**), configure:
+
+| Variable | Target Environment | Value / Description |
+|---|---|---|
+| `NODE_ENV` | Production, Preview | `production` |
+| `DATABASE_URL` | Production, Preview | `libsql://aura-salon-<username>.turso.io` |
+| `DATABASE_AUTH_TOKEN` | Production, Preview | `<your-turso-jwt-token>` (Keep Secret) |
+| `AUTH_SECRET` | Production, Preview | Random 32+ character string (e.g. `openssl rand -hex 32`) |
+| `STAFF_PIN` | Production, Preview | `1234` (or your chosen numeric staff PIN) |
+| `OWNER_PIN` | Production, Preview | `5678` (or your chosen numeric owner PIN) |
+| `CLIENT_ORIGIN` | Production, Preview | `https://<your-project>.vercel.app` |
+| `SALON_TIMEZONE` | Production, Preview | `Asia/Kolkata` |
+| `NO_SHOW_GRACE_MINUTES` | Production, Preview | `10` |
+| `VITE_API_URL` | Production, Preview | *(Leave empty / unset — defaults to relative `/api` on same domain)* |
+| `VITE_SOCKET_URL` | Production, Preview | *(Optional — leave empty to use built-in serverless polling fallback)* |
+
+#### Step D — Deploy & Verify
+1. Click **Deploy**.
+2. Once the build finishes, open your production URL:
+   - Homepage: `https://<your-project>.vercel.app`
+   - Customer Queue: `https://<your-project>.vercel.app/join`
+   - Reception Desk: `https://<your-project>.vercel.app/reception`
+   - Barber View: `https://<your-project>.vercel.app/barber/isha`
+   - TV Display: `https://<your-project>.vercel.app/display`
+   - Owner Dashboard: `https://<your-project>.vercel.app/admin`
+   - Health Check API: `https://<your-project>.vercel.app/api/health`
+
+### 3. Real-Time Communication Architecture on Vercel
+- **Serverless Reality:** Vercel Functions scale down to zero when idle and cannot maintain permanent, long-lived WebSocket connections natively.
+- **Built-in Resilience:** Aura Salon includes an automatic background polling fallback (every 4–5 seconds) whenever the WebSocket is offline or disconnected. All screens (Reception, Barbers, TV Display, Customer status) stay synchronized across multiple devices with zero configuration and zero extra costs.
+- **Optional Dedicated WebSocket Container:** If you require instant sub-second WebSocket pushes, you can optionally deploy the server as a stateful container on Render/Railway (free tier) and set `VITE_SOCKET_URL=https://your-backend.onrender.com` in Vercel.
+
+### 4. Troubleshooting Common Deployment Issues
+- **Direct Route Reload Returns 404:** Ensure `client/vercel.json` contains the SPA rewrite rule (`/(.*)` -> `/index.html`).
+- **Database Connection Error (503):** Verify that `DATABASE_URL` starts with `libsql://` and `DATABASE_AUTH_TOKEN` is set correctly in Vercel.
+- **CORS Error on Preview URLs:** The server automatically permits same-origin requests and `*.vercel.app` preview branches. Ensure `CLIENT_ORIGIN` contains your custom domain if using one.
 

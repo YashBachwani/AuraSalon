@@ -363,4 +363,25 @@ This file records every prompt used during the design, development, debugging, t
       - `screenshots/home_hero_mobile_375.png` (flawless mobile responsive presentation).
 
 
+### Prompt 11 — Complete Vercel Deployment Configuration
+- **Date:** 2026-11-24
+- **Stage:** Vercel Production Deployment Architecture Preparation
+- **Prompt Summary:**
+  > Configure Aura Salon for production deployment on Vercel from a single GitHub repository.
+  > 1. Audit complete repository structure, client/server configurations, package.json scripts, API routes, database, Socket.IO, auth, and environment variables.
+  > 2. Design Vercel architecture using Vercel's official Multiple Services (`client` Vite SPA + `server` Express serverless function).
+  > 3. Create root `vercel.json` with services and rewrites (`/api/(.*)` to `server`, `/(.*)` to `client`).
+  > 4. Fix frontend and backend URL configuration: relative `/api` paths in production, no hardcoded localhost URLs.
+  > 5. Database & Persistent Storage: Support Turso cloud libSQL (`libsql://...`), ensure serverless connection compatibility and ephemeral filesystem safety.
+  > 6. Socket.IO & Real-Time Sync: Analyze serverless limitations, implement intelligent background polling fallback (4-5s) across all active screens when WebSockets are unavailable, preserving Socket.IO for stateful environments.
+  > 7. Authentication & Security: Ensure HTTPS/same-origin cookie & token security, RBAC guards, and secret isolation.
+  > 8. Environment Variables: Prepare comprehensive `.env.example` with classification into Local, Client, Server, and Secret variables.
+  > 9. Frontend Routing: Ensure SPA rewrites without 404s on deep route refresh.
+  > 10. Automated Testing & Verification: Verify client build (2.57s), backend tests (73/73 passing), and E2E workflow (18/18 checks passing).
+  > 11. Documentation: Update `README.md`, `.env.example`, `prompts.md`.
+  > 12. Present Phase 12 Final Approval with sections A through G for user confirmation.
+- **Outcome:** Succeeded. Configured root `vercel.json`, updated Express server for serverless handler compatibility (`server/src/index.js` and `server/api/index.js`), added Turso cloud aliases and `/tmp` fallback, updated `api.js` and `socket.js` with relative production paths, added resilient real-time polling fallback to all screens, created `.env.example`, passed all 73 backend unit tests, built client bundle in 2.57s, and passed all 18 E2E verification checks.
+
+
+
 

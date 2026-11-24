@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "src/index.js",
   "description": "Express + Socket.IO + SQLite/libSQL backend for Aura Salon Queue Management System",
   "scripts": {
     "dev": "node --watch src/index.js",
