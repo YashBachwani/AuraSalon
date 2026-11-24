@@ -1,39 +1,13 @@
+/**
+ * Server Root Entrypoint
+ * Supports both standalone local execution (Express + Socket.IO) and Vercel serverless export.
+ */
 import http from 'node:http';
 import url from 'node:url';
+import app, { createApp, ensureDatabaseReady } from './app.js';
 import { env } from './config/env.js';
-import { db } from './db/client.js';
-import { initializeSchema } from './db/schema.js';
-import { seedDatabase } from './db/seed.js';
-import { createApp } from './app.js';
 import { initSocketServer } from './socket/index.js';
 
-let dbInitialized = false;
-let dbInitPromise = null;
-
-/**
- * Lazy/cached idempotent database initialization for serverless & local runtimes
- */
-export async function ensureDatabaseReady() {
-  if (dbInitialized) return;
-  if (!dbInitPromise) {
-    dbInitPromise = (async () => {
-      await initializeSchema(db);
-      await seedDatabase(db);
-      dbInitialized = true;
-    })().catch((err) => {
-      dbInitPromise = null;
-      throw err;
-    });
-  }
-  return dbInitPromise;
-}
-
-// Instantiate Express app with ensureDatabaseReady middleware
-export const app = createApp(db, ensureDatabaseReady);
-
-/**
- * Starts standalone HTTP and Socket.IO server for local development or container hosting
- */
 export async function startServer() {
   await ensureDatabaseReady();
 
@@ -49,7 +23,7 @@ export async function startServer() {
   });
 }
 
-// Automatically start server only when executed directly (node src/index.js) and not inside Vercel Serverless
+// Automatically start server only when executed directly (node src/index.js) and not in Vercel Serverless
 const isDirectExecution =
   process.argv[1] &&
   import.meta.url === url.pathToFileURL(process.argv[1]).href;
@@ -61,5 +35,5 @@ if (isDirectExecution && !process.env.VERCEL) {
   });
 }
 
-// Default export for Vercel Express framework handler
+export { app, createApp, ensureDatabaseReady };
 export default app;

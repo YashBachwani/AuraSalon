@@ -383,5 +383,20 @@ This file records every prompt used during the design, development, debugging, t
 - **Outcome:** Succeeded. Configured root `vercel.json`, updated Express server for serverless handler compatibility (`server/src/index.js` and `server/api/index.js`), added Turso cloud aliases and `/tmp` fallback, updated `api.js` and `socket.js` with relative production paths, added resilient real-time polling fallback to all screens, created `.env.example`, passed all 73 backend unit tests, built client bundle in 2.57s, and passed all 18 E2E verification checks.
 
 
+### Prompt 12 — Critical Fix: Aura Salon Vercel Serverless Export Error
+- **Date:** 2026-11-24
+- **Stage:** Production Deployment Runtime Fix
+- **Prompt Summary:**
+  > Fix the runtime error reported in Vercel logs:
+  > `Invalid export found in module "/var/task/server/src/app.mjs". The default export must be a function or server.`
+  > 1. Inspect existing backend exports (`server/src/app.js`, `server/src/app.mjs`, `server/src/server.mjs`, `server/package.json`, `vercel.json`).
+  > 2. Expose a valid default export in `server/src/app.js` and `server/src/app.mjs` that Vercel recognizes as an Express application function.
+  > 3. Separate local HTTP server startup (`server/src/server.mjs` and `server/src/index.js`) from serverless exports.
+  > 4. Ensure database initialization is lazy/idempotent and serverless-safe.
+  > 5. Preserve local development workflow, run backend tests, and commit with message `fix: correct express serverless export for vercel`.
+- **Outcome:** Succeeded. Identified that `server/src/app.js` only had named export `createApp` without any default export. Updated `server/src/app.js` to instantiate and default-export `app = createApp(db, ensureDatabaseReady)`. Created `server/src/app.mjs` as explicit `.mjs` entry re-exporting `default app`. Created `server/src/server.mjs` for dedicated local server startup with Socket.IO. Updated `server/src/index.js` to dual-mode (standalone CLI listener vs default export). Updated `server/package.json` with `"main": "src/app.js"`. Verified all exports in Node.js evaluate to `typeof app === 'function'`. Verified 73 / 73 backend tests passing, 18 / 18 E2E checks passing, and committed to Git.
+
+
+
 
 

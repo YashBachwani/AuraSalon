@@ -1,7 +1,7 @@
-import app, { ensureDatabaseReady } from '../src/index.js';
+import app, { ensureDatabaseReady } from '../src/app.js';
 
 /**
- * Serverless Function handler for Vercel
+ * Explicit Serverless Function handler for Vercel
  */
 export default async function handler(req, res) {
   await ensureDatabaseReady();
